@@ -43,7 +43,7 @@ export default function TopicsPage() {
         <div className="mx-auto max-w-[680px] px-6 py-10 md:px-8">
           <p className="section-label mb-2">Topics</p>
           <h1 className="font-[family-name:var(--font-ibm-plex-sans)] text-[1.7rem] font-bold tracking-[-0.02em] text-[var(--color-text)] md:text-[2.125rem]">
-            Explore the themes behind the research
+            Explore the themes behind the posts
           </h1>
           <p className="mt-3 font-[family-name:var(--font-source-serif-4)] text-[1rem] leading-[1.7] text-[var(--color-muted)]">
             Topic pages group related posts so readers and search engines can

@@ -26,7 +26,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const description = `Posts about ${topicName}, including related LLM evaluation research, benchmarks, and implementation notes.`;
+  const description = `Posts about ${topicName}, including related LLM evaluation benchmarks and implementation notes.`;
   const url = absoluteUrl(`/topics/${slug}`);
 
   return {
