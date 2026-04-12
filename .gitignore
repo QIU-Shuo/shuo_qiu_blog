@@ -1,0 +1,28 @@
+# macOS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets / environment
+.env
+.env.local
+.env.*.local
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.deepeval/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+out/
+coverage/
+dist/
+
+# Vercel
+.vercel/

@@ -1,0 +1,43 @@
+---
+title: "Your Agent and Harness Aren't the Asset, Your Eval Is"
+date: 2026-04-05
+contentType: Opinion
+abstract: "The durable asset in agent development is not the prompt or the harness. It is the eval: the specification of what good looks like, where agents fail, and what customers actually need."
+estimatedReadTime: "3 min"
+draft: false
+---
+
+The biggest misunderstanding in agent development is that the asset is the prompt or the harness.
+
+It isn't. **The durable asset is the eval.**
+
+Agent prompts vary by model. Orchestration changes as capabilities shift and user needs evolve. Both are increasingly auto-optimized. Building an agent with a harness is easy: pull down the popular agent repos and ask your coding agent to adapt for your problem, you can write ten different ones in a day. Then you vibe-test them, hope to find some failure mode, and pick the one that seems least broken. But you won't know which one is actually better.
+
+The eval is what compounds. It's your understanding of what customers actually need and where agents actually fail. Models can generate solutions, but they can't navigate ambiguity without evaluations that encode what "good" looks like. In product, those are very nuanced differences even humans struggle to spot. The eval is the specification. Everything else is implementation.
+
+**"Eval isn't important — I built my agent without one."** 
+
+You didn't. You built the eval implicitly: by thinking through expected inputs and outputs during prompt-writing, by playground-testing, by asking your friend to try it. 
+
+The problem is that implicit evals are fragile. When a new model comes out, the best harness changes, or users start exploiting your product, you're going to repeat all of that work. Making the eval explicit is what turns a one-time effort into a compounding asset.
+
+"I don't have time for evals." Then spend less time writing agent prompts and more time writing the eval spec. 
+
+Define the behavior you want. Define the failure modes you care about. Write down representative inputs, expected outcomes, and edge cases. Then let a coding agent generate eval cases from the spec or from traces, build the harness, propose prompts, and iterate.
+- Instead of keeping the desired behavior in your head, encode it.
+- Instead of saying “speak professionally,” put “the agent should speak professionally” in the eval.
+- Instead of playground-testing and forgetting, turn those test queries into reusable examples.
+
+**The bottleneck is shifting from agent coding to eval coding.**
+
+**"Evals are rigid — my eval for the old harness doesn't work for the new one."** 
+
+That's because you're applying it as a frozen test case. Extract what matters: the customer's need, the expected outcome, a grader aligned with customer satisfaction. The future of eval isn't a static dataset. It's a living system, including behavioral specs, representative examples, user simulators, failure summaries, and scenario distributions.
+
+This matters most for the hardest problems. Evaluating "does this code compile" is easy. Evaluating whether an agent helped someone with a vague product idea is hard. And that's exactly where the leverage is.
+
+**A lot of hard problems are hard to solve because they are hard to evaluate.**
+
+The first team to build the eval for a messy problem is the closest to solving it. Once you have a better eval, you know which solution actually works for users. And once you can give users the best solution, you have more data to refine the eval.
+
+**The moat isn't the agent. It's the eval.**
