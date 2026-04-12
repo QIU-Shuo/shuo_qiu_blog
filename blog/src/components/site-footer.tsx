@@ -10,12 +10,12 @@ export function SiteFooter() {
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="font-[family-name:var(--font-ibm-plex-sans)] text-[0.8rem] text-[var(--color-muted)]">
             Agent Eval Notes by{" "}
-            <a
+            <Link
               href="/about"
               className="text-[var(--color-text)] transition-colors hover:text-[var(--color-accent)]"
             >
               Shuo Qiu
-            </a>
+            </Link>
           </p>
           <nav className="flex items-center gap-4 font-[family-name:var(--font-ibm-plex-sans)] text-[0.8rem] text-[var(--color-muted)]">
             <Link
