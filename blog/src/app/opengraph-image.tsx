@@ -70,7 +70,7 @@ export default function Image() {
                 letterSpacing: "-0.05em",
               }}
             >
-              Agent evaluation research for teams building with AI
+              Agent evaluation for teams building with AI
             </div>
             <div
               style={{

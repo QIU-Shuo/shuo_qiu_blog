@@ -28,7 +28,6 @@ export const siteConfig = {
   description:
     "Benchmarks, methodology, and implementation notes on AI agent evaluation, synthetic datasets, and eval-driven development by Shuo Qiu.",
   rssPath: "/feed.xml",
-  topicsPath: "/topics",
   author: {
     name: "Shuo Qiu",
     path: "/about",

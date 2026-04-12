@@ -34,12 +34,6 @@ export interface Post {
   readingTime: string;
 }
 
-export interface TopicSummary {
-  name: string;
-  slug: string;
-  count: number;
-}
-
 export function getPostSlugs(): string[] {
   if (!fs.existsSync(POSTS_DIR)) return [];
   return fs
@@ -94,54 +88,8 @@ export function getFeaturedPost(): Post | null {
   return posts[0] ?? null;
 }
 
-export function topicToSlug(topic: string): string {
-  return topic
-    .trim()
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-export function getAllTopics(): TopicSummary[] {
-  const topics = new Map<string, TopicSummary>();
-
-  for (const post of getAllPosts()) {
-    for (const rawTopic of post.frontmatter.topics ?? []) {
-      const name = rawTopic.trim();
-      const slug = topicToSlug(name);
-      const current = topics.get(slug);
-
-      if (current) {
-        current.count += 1;
-        continue;
-      }
-
-      topics.set(slug, {
-        name,
-        slug,
-        count: 1,
-      });
-    }
-  }
-
-  return [...topics.values()].sort(
-    (a, b) => b.count - a.count || a.name.localeCompare(b.name)
-  );
-}
-
-export function hasPublishedTopics(): boolean {
-  return getAllTopics().length > 0;
-}
-
-export function getTopicNameBySlug(topicSlug: string): string | null {
-  return getAllTopics().find((topic) => topic.slug === topicSlug)?.name ?? null;
-}
-
-export function getPostsByTopicSlug(topicSlug: string): Post[] {
-  return getAllPosts().filter((post) =>
-    (post.frontmatter.topics ?? []).some((topic) => topicToSlug(topic) === topicSlug)
-  );
+function normalizeTopic(topic: string): string {
+  return topic.trim().toLowerCase();
 }
 
 export function getLatestPostDate(): string | null {
@@ -160,13 +108,13 @@ export function getRelatedPosts(post: Post, limit = 3): Post[] {
   }
 
   const currentTopics = new Set(
-    (post.frontmatter.topics ?? []).map((topic) => topicToSlug(topic))
+    (post.frontmatter.topics ?? []).map(normalizeTopic)
   );
 
   const sharedTopicMatches = candidates
     .map((candidate) => {
       const candidateTopics = new Set(
-        (candidate.frontmatter.topics ?? []).map((topic) => topicToSlug(topic))
+        (candidate.frontmatter.topics ?? []).map(normalizeTopic)
       );
       let sharedTopicCount = 0;
 

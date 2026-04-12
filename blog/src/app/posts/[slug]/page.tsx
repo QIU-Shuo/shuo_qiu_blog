@@ -8,7 +8,6 @@ import {
   getPublishedPostSlugs,
   getRelatedPosts,
   isPublishedPost,
-  topicToSlug,
 } from "@/lib/posts";
 import { ReadingProgress } from "@/components/reading-progress";
 import { CodeCopy } from "@/components/code-copy";
@@ -128,12 +127,6 @@ export default async function PostPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Archive",
-        item: absoluteUrl("/archive"),
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
         name: frontmatter.title,
         item: url,
       },
@@ -167,15 +160,6 @@ export default async function PostPage({ params }: PageProps) {
               </Link>
             </li>
             <li aria-hidden="true">/</li>
-            <li>
-              <Link
-                href="/archive"
-                className="transition-colors hover:text-[var(--color-text)]"
-              >
-                Archive
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-[var(--color-text)]">
               {frontmatter.title}
             </li>
@@ -190,23 +174,6 @@ export default async function PostPage({ params }: PageProps) {
           authorHref={siteConfig.author.path}
         />
         <Abstract>{frontmatter.abstract}</Abstract>
-        {topics.length > 0 && (
-          <section className="mx-auto mt-5 max-w-[680px] px-6 md:px-0">
-            <h2 className="section-label mb-3">Topics</h2>
-            <ul className="flex flex-wrap gap-2">
-              {topics.map((topic) => (
-                <li key={topic}>
-                  <Link
-                    href={`/topics/${topicToSlug(topic)}`}
-                    className="inline-flex rounded-full border border-[var(--color-rule)] bg-[var(--color-bg-subtle)] px-3 py-1 font-[family-name:var(--font-ibm-plex-sans)] text-[0.75rem] font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-                  >
-                    {topic}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
         {frontmatter.keyFindings && frontmatter.keyFindings.length > 0 && (
           <KeyFindings findings={frontmatter.keyFindings} />
         )}
