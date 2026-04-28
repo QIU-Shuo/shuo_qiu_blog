@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import {
   getPost,
+  getPostImagePaths,
   getPublishedPostSlugs,
   getRelatedPosts,
   isPublishedPost,
@@ -14,12 +15,23 @@ import { CodeCopy } from "@/components/code-copy";
 import {
   ArticleHeader,
   Abstract,
-  KeyFindings,
+  TrajectoryCase,
+  Figure,
+  Appendix,
 } from "@/components/editorial";
 import type { Metadata } from "next";
-import { absoluteUrl, getSocialImage, siteConfig } from "@/lib/site";
+import {
+  absoluteUrl,
+  getSocialImage,
+  getTwitterAttribution,
+  siteConfig,
+} from "@/lib/site";
 
-const mdxComponents = {};
+const mdxComponents = {
+  TrajectoryCase,
+  Figure,
+  Appendix,
+};
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -42,7 +54,9 @@ export async function generateMetadata({
   const socialImage = getSocialImage(`/posts/${slug}/opengraph-image`);
 
   return {
-    title: post.frontmatter.title,
+    title: {
+      absolute: post.frontmatter.title,
+    },
     description,
     keywords: post.frontmatter.topics,
     alternates: {
@@ -53,6 +67,7 @@ export async function generateMetadata({
       description,
       type: "article",
       publishedTime: post.frontmatter.date,
+      modifiedTime: post.lastModified,
       url,
       tags: post.frontmatter.topics,
       authors: [siteConfig.author.name],
@@ -63,6 +78,7 @@ export async function generateMetadata({
       title: post.frontmatter.title,
       description,
       images: socialImage.map((image) => image.url),
+      ...getTwitterAttribution(),
     },
   };
 }
@@ -76,6 +92,10 @@ export default async function PostPage({ params }: PageProps) {
   const description = frontmatter.metaDescription || frontmatter.abstract;
   const url = absoluteUrl(`/posts/${slug}`);
   const socialImage = getSocialImage(`/posts/${slug}/opengraph-image`);
+  const imageUrls = [
+    ...socialImage.map((image) => image.url),
+    ...getPostImagePaths(post).map((imagePath) => absoluteUrl(imagePath)),
+  ];
   const relatedPosts = getRelatedPosts(post);
   const topics = frontmatter.topics ?? [];
 
@@ -85,7 +105,7 @@ export default async function PostPage({ params }: PageProps) {
     headline: frontmatter.title,
     description,
     datePublished: frontmatter.date,
-    dateModified: frontmatter.date,
+    dateModified: post.lastModified,
     url,
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -95,7 +115,7 @@ export default async function PostPage({ params }: PageProps) {
     wordCount: content.trim().split(/\s+/).length,
     keywords: topics.join(", "),
     inLanguage: "en-US",
-    image: socialImage.map((image) => image.url),
+    image: imageUrls,
     isPartOf: {
       "@type": "Blog",
       "@id": absoluteUrl("/#website"),
@@ -106,6 +126,7 @@ export default async function PostPage({ params }: PageProps) {
       "@type": "Person",
       name: siteConfig.author.name,
       url: absoluteUrl(siteConfig.author.path),
+      sameAs: [siteConfig.social.github, siteConfig.social.x],
     },
     publisher: {
       "@type": "Organization",
@@ -174,9 +195,6 @@ export default async function PostPage({ params }: PageProps) {
           authorHref={siteConfig.author.path}
         />
         <Abstract>{frontmatter.abstract}</Abstract>
-        {frontmatter.keyFindings && frontmatter.keyFindings.length > 0 && (
-          <KeyFindings findings={frontmatter.keyFindings} />
-        )}
         <div className="prose mx-auto mt-8 max-w-[680px] px-6 md:px-0">
           <MDXRemote
             source={content}

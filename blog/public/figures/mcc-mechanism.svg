@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="645.761875" height="378.435312" viewBox="0 0 645.761875 378.435312" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-04-27T19:54:53.652665</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 378.435312 
+L 645.761875 378.435312 
+L 645.761875 0 
+L 0 0 
+L 0 378.435312 
+z
+" style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 187.941875 321.84 
+L 631.361875 321.84 
+L 631.361875 14.4 
+L 187.941875 14.4 
+L 187.941875 321.84 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 187.941875 321.84 
+L 187.941875 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2"/>
+     <g id="text_1">
+      <text style="font-size: 12px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: middle; fill: #6b7280" x="187.941875" y="336.958125" transform="rotate(-0 187.941875 336.958125)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 292.275993 321.84 
+L 292.275993 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4"/>
+     <g id="text_2">
+      <text style="font-size: 12px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: middle; fill: #6b7280" x="292.275993" y="336.958125" transform="rotate(-0 292.275993 336.958125)">0.2</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 396.61011 321.84 
+L 396.61011 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6"/>
+     <g id="text_3">
+      <text style="font-size: 12px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: middle; fill: #6b7280" x="396.61011" y="336.958125" transform="rotate(-0 396.61011 336.958125)">0.4</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 500.944228 321.84 
+L 500.944228 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8"/>
+     <g id="text_4">
+      <text style="font-size: 12px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: middle; fill: #6b7280" x="500.944228" y="336.958125" transform="rotate(-0 500.944228 336.958125)">0.6</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 605.278346 321.84 
+L 605.278346 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10"/>
+     <g id="text_5">
+      <text style="font-size: 12px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: middle; fill: #6b7280" x="605.278346" y="336.958125" transform="rotate(-0 605.278346 336.958125)">0.8</text>
+     </g>
+    </g>
+    <g id="text_6">
+     <text style="font-size: 13px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-anchor: middle; fill: #3d4350" x="409.651875" y="361.331719" transform="rotate(-0 409.651875 361.331719)">Matthews Correlation Coefficient (vs tau2-bench labels)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_11"/>
+     <g id="text_7">
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(70.11125 61.855128)">Skill, calibrated</text>
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(15.393125 77.532065)">(+ labeled trajectories)</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_12"/>
+     <g id="text_8">
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(14.4 131.727855)">Free-form coding agent</text>
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(40.604062 147.404793)">(task material only)</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_13"/>
+     <g id="text_9">
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(72.959375 201.600582)">Skill, desc-only</text>
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(40.604062 217.27752)">(task material only)</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14"/>
+     <g id="text_10">
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(53.190938 271.47331)">AgentEval default</text>
+      <text style="font-size: 14px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #0f1115" transform="translate(58.443125 287.150247)">(no task context)</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_15">
+    <path d="M 187.941875 321.84 
+L 187.941875 14.4 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #d1d5db; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 208.808699 82.525909 
+L 518.159357 82.525909 
+Q 539.026181 82.525909 539.026181 79.731 
+L 539.026181 46.890818 
+Q 539.026181 44.095909 518.159357 44.095909 
+L 208.808699 44.095909 
+Q 187.941875 44.095909 187.941875 46.890818 
+L 187.941875 79.731 
+Q 187.941875 82.525909 208.808699 82.525909 
+z
+" clip-path="url(#pc90f94c3cb)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 208.808699 152.398636 
+L 473.817357 152.398636 
+Q 494.684181 152.398636 494.684181 149.603727 
+L 494.684181 116.763545 
+Q 494.684181 113.968636 473.817357 113.968636 
+L 208.808699 113.968636 
+Q 187.941875 113.968636 187.941875 116.763545 
+L 187.941875 149.603727 
+Q 187.941875 152.398636 208.808699 152.398636 
+z
+" clip-path="url(#pc90f94c3cb)" style="fill: #334155"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 208.808699 222.271364 
+L 324.619569 222.271364 
+Q 345.486393 222.271364 345.486393 219.476455 
+L 345.486393 186.636273 
+Q 345.486393 183.841364 324.619569 183.841364 
+L 208.808699 183.841364 
+Q 187.941875 183.841364 187.941875 186.636273 
+L 187.941875 219.476455 
+Q 187.941875 222.271364 208.808699 222.271364 
+z
+" clip-path="url(#pc90f94c3cb)" style="fill: #9ca3af"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 208.808699 292.144091 
+L 319.402863 292.144091 
+Q 340.269687 292.144091 340.269687 289.349182 
+L 340.269687 256.509 
+Q 340.269687 253.714091 319.402863 253.714091 
+L 208.808699 253.714091 
+Q 187.941875 253.714091 187.941875 256.509 
+L 187.941875 289.349182 
+Q 187.941875 292.144091 208.808699 292.144091 
+z
+" clip-path="url(#pc90f94c3cb)" style="fill: #9ca3af"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 187.941875 321.84 
+L 631.361875 321.84 
+" style="fill: none; stroke: #d1d5db; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 500; font-size: 15px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #0f1115" x="628.753522" y="64.655063" transform="rotate(-0 628.753522 64.655063)">0.673</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11.5px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #6b7280" x="628.753522" y="87.446009" transform="rotate(-0 628.753522 87.446009)">[0.623, 0.722]</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 500; font-size: 15px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #0f1115" x="628.753522" y="134.52779" transform="rotate(-0 628.753522 134.52779)">0.588</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.5px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #6b7280" x="628.753522" y="157.318736" transform="rotate(-0 628.753522 157.318736)">[0.525, 0.651]</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 500; font-size: 15px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #0f1115" x="628.753522" y="204.400517" transform="rotate(-0 628.753522 204.400517)">0.302</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 11.5px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #6b7280" x="628.753522" y="227.191463" transform="rotate(-0 628.753522 227.191463)">[0.235, 0.370]</text>
+   </g>
+   <g id="text_17">
+    <text style="font-weight: 500; font-size: 15px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #0f1115" x="628.753522" y="274.273244" transform="rotate(-0 628.753522 274.273244)">0.292</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 11.5px; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; text-anchor: end; fill: #6b7280" x="628.753522" y="297.06419" transform="rotate(-0 628.753522 297.06419)">[0.226, 0.356]</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 11px; font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-anchor: start; fill: #6b7280" x="190.550228" y="34.903494" transform="rotate(-0 190.550228 34.903494)">always-FAIL baseline</text>
+   </g>
+   <g id="line2d_16">
+    <path d="M 512.942651 63.310909 
+L 539.026181 63.310909 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #ffffff; stroke-opacity: 0.9; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 539.026181 63.310909 
+L 564.58804 63.310909 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 512.942651 70.298182 
+L 512.942651 56.323636 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #ffffff; stroke-opacity: 0.9; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 564.58804 70.298182 
+L 564.58804 56.323636 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 461.818934 133.183636 
+L 494.684181 133.183636 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #ffffff; stroke-opacity: 0.9; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 494.684181 133.183636 
+L 527.549428 133.183636 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 461.818934 140.170909 
+L 461.818934 126.196364 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #ffffff; stroke-opacity: 0.9; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 527.549428 140.170909 
+L 527.549428 126.196364 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 310.534463 203.056364 
+L 345.486393 203.056364 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 345.486393 203.056364 
+L 380.959993 203.056364 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 310.534463 210.043636 
+L 310.534463 196.069091 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 380.959993 210.043636 
+L 380.959993 196.069091 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 305.839428 272.929091 
+L 340.269687 272.929091 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 340.269687 272.929091 
+L 373.656604 272.929091 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 305.839428 279.916364 
+L 305.839428 265.941818 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 373.656604 279.916364 
+L 373.656604 265.941818 
+" clip-path="url(#pc90f94c3cb)" style="fill: none; stroke: #0f1115; stroke-width: 1.1"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc90f94c3cb">
+   <rect x="187.941875" y="14.4" width="443.42" height="307.44"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -9,7 +9,6 @@ export function SiteFooter() {
       <div className="mx-auto max-w-[1100px] px-6 py-8 md:px-8">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="font-[family-name:var(--font-ibm-plex-sans)] text-[0.8rem] text-[var(--color-muted)]">
-            Agent Eval Notes by{" "}
             <Link
               href="/about"
               className="text-[var(--color-text)] transition-colors hover:text-[var(--color-accent)]"

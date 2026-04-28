@@ -52,7 +52,7 @@ export default function Image() {
                 background: "#1d4ed8",
               }}
             />
-            Agent Eval Notes
+            Shuo Qiu
           </div>
           <div
             style={{
@@ -70,7 +70,7 @@ export default function Image() {
                 letterSpacing: "-0.05em",
               }}
             >
-              Agent evaluation for teams building with AI
+              Notes on AI agents, evaluation, and software
             </div>
             <div
               style={{
@@ -79,8 +79,7 @@ export default function Image() {
                 color: "#3d4350",
               }}
             >
-              Benchmarks, methodology, and implementation notes on agent evals,
-              synthetic datasets, and eval-driven development.
+              Benchmarks, methodology, and implementation notes by Shuo Qiu.
             </div>
           </div>
         </div>

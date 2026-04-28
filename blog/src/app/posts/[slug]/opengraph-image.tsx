@@ -74,7 +74,7 @@ export default async function Image({ params }: PostImageProps) {
                   background: "#1d4ed8",
                 }}
               />
-              Agent Eval Notes
+              Shuo Qiu
             </div>
             <div
               style={{

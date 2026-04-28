@@ -472,3 +472,11 @@ body {
     padding: 0.5rem 0.75rem;
   }
 }
+
+/* ── Trajectory case component ── */
+.trajectory-case-summary::-webkit-details-marker {
+  display: none;
+}
+.trajectory-case[open] .trajectory-case-chevron {
+  transform: rotate(90deg);
+}

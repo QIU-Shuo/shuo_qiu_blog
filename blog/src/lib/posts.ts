@@ -15,10 +15,10 @@ export type ContentType =
 export interface PostFrontmatter {
   title: string;
   date: string;
+  lastModified?: string;
   contentType: ContentType;
   abstract: string;
   metaDescription?: string;
-  keyFindings?: string[];
   topics?: string[];
   estimatedReadTime?: string;
   draft: boolean;
@@ -32,6 +32,7 @@ export interface Post {
   frontmatter: PostFrontmatter;
   content: string;
   readingTime: string;
+  lastModified: string;
 }
 
 export function getPostSlugs(): string[] {
@@ -49,11 +50,17 @@ export function getPost(slug: string): Post | null {
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
   const stats = readingTime(content);
+  const fileModified = fs.statSync(filePath).mtime.toISOString().split("T")[0];
 
   const frontmatter = data as PostFrontmatter;
   // gray-matter parses YAML dates into Date objects — normalize to string
   if ((frontmatter.date as unknown) instanceof Date) {
     frontmatter.date = (frontmatter.date as unknown as Date).toISOString().split("T")[0];
+  }
+  if ((frontmatter.lastModified as unknown) instanceof Date) {
+    frontmatter.lastModified = (frontmatter.lastModified as unknown as Date)
+      .toISOString()
+      .split("T")[0];
   }
 
   return {
@@ -61,6 +68,7 @@ export function getPost(slug: string): Post | null {
     frontmatter,
     content,
     readingTime: stats.text,
+    lastModified: frontmatter.lastModified ?? fileModified,
   };
 }
 
@@ -81,6 +89,18 @@ export function getAllPosts(): Post[] {
         new Date(b.frontmatter.date).getTime() -
         new Date(a.frontmatter.date).getTime()
     );
+}
+
+export function getPostImagePaths(post: Post): string[] {
+  const paths = new Set<string>();
+  const figurePattern = /<Figure\b[\s\S]*?\bsrc="([^"]+)"/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = figurePattern.exec(post.content)) !== null) {
+    paths.add(match[1]);
+  }
+
+  return [...paths];
 }
 
 export function getFeaturedPost(): Post | null {

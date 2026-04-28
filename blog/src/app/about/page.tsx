@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { absoluteUrl, getSocialImage, siteConfig } from "@/lib/site";
+import {
+  absoluteUrl,
+  getSocialImage,
+  getTwitterAttribution,
+  siteConfig,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Casual notes on agent evaluation by Shuo Qiu.",
+  description: "Notes by Shuo Qiu on AI agents, evaluation, and software.",
   alternates: {
     canonical: absoluteUrl("/about"),
   },
   openGraph: {
     title: "About",
-    description: "Casual notes on agent evaluation by Shuo Qiu.",
+    description: "Notes by Shuo Qiu on AI agents, evaluation, and software.",
     url: absoluteUrl("/about"),
     type: "website",
     siteName: siteConfig.name,
@@ -19,8 +24,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "About",
-    description: "Casual notes on agent evaluation by Shuo Qiu.",
+    description: "Notes by Shuo Qiu on AI agents, evaluation, and software.",
     images: getSocialImage().map((image) => image.url),
+    ...getTwitterAttribution(),
   },
 };
 
@@ -32,7 +38,7 @@ export default function AboutPage() {
       </h1>
 
       <p className="font-[family-name:var(--font-source-serif-4)] text-[1.125rem] leading-[1.75] text-[var(--color-text)]">
-        Casual notes on agent evaluation by Shuo Qiu.
+        Notes by Shuo Qiu on AI agents, evaluation, and software.
       </p>
     </div>
   );
