@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getLatestPostDate } from "@/lib/posts";
+import { getAllPosts, getLatestPostDate, getPostImagePaths } from "@/lib/posts";
 import { absoluteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -9,9 +9,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: absoluteUrl(`/posts/${post.slug}`),
-    lastModified: new Date(post.frontmatter.date),
+    lastModified: new Date(post.lastModified),
     changeFrequency: "monthly",
     priority: 0.8,
+    images: [
+      absoluteUrl(`/posts/${post.slug}/opengraph-image`),
+      ...getPostImagePaths(post).map((imagePath) => absoluteUrl(imagePath)),
+    ],
   }));
 
   return [

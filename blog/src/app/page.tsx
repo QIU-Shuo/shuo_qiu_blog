@@ -2,16 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 import { ContentTypeBadge } from "@/components/content-type-badge";
-import { absoluteUrl, getSocialImage, siteConfig } from "@/lib/site";
+import {
+  absoluteUrl,
+  getSocialImage,
+  getTwitterAttribution,
+  siteConfig,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Agent Eval Notes",
+  title: {
+    absolute: "Shuo Qiu — Notes on AI Agents & Evaluation",
+  },
   description: siteConfig.description,
   alternates: {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
-    title: "Agent Eval Notes",
+    title: "Shuo Qiu — Notes on AI Agents & Evaluation",
     description: siteConfig.description,
     url: absoluteUrl("/"),
     type: "website",
@@ -21,9 +28,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agent Eval Notes",
+    title: "Shuo Qiu — Notes on AI Agents & Evaluation",
     description: siteConfig.description,
     images: getSocialImage().map((image) => image.url),
+    ...getTwitterAttribution(),
   },
 };
 
@@ -42,7 +50,7 @@ export default function HomePage() {
           >
             Shuo Qiu
           </Link>
-          &rsquo;s Notes on AI Agent&nbsp;Evaluation
+          &rsquo;s Notes
         </h1>
       </header>
 

@@ -4,7 +4,12 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { absoluteUrl, getSocialImage, siteConfig } from "@/lib/site";
+import {
+  absoluteUrl,
+  getSocialImage,
+  getTwitterAttribution,
+  siteConfig,
+} from "@/lib/site";
 import "./globals.css";
 
 const plexSans = IBM_Plex_Sans({
@@ -31,7 +36,7 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Agent Eval Notes",
+    default: "Shuo Qiu",
     template: `%s — ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -57,15 +62,16 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     siteName: siteConfig.name,
     url: siteConfig.url,
-    title: "Agent Eval Notes",
+    title: "Shuo Qiu",
     description: siteConfig.description,
     images: getSocialImage(),
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agent Eval Notes",
+    title: "Shuo Qiu",
     description: siteConfig.description,
     images: getSocialImage().map((image) => image.url),
+    ...getTwitterAttribution(),
   },
   robots: {
     index: true,
@@ -94,6 +100,14 @@ export default function RootLayout({
         name: siteConfig.name,
         url: siteConfig.url,
         description: siteConfig.description,
+        sameAs: [siteConfig.social.github, siteConfig.social.x],
+      },
+      {
+        "@type": "Person",
+        "@id": absoluteUrl("/#person"),
+        name: siteConfig.author.name,
+        url: absoluteUrl(siteConfig.author.path),
+        sameAs: [siteConfig.social.github, siteConfig.social.x],
       },
       {
         "@type": "WebSite",

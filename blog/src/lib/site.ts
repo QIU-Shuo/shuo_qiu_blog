@@ -21,16 +21,21 @@ const siteUrl = normalizeSiteUrl(
 );
 
 export const siteConfig = {
-  name: "Agent Eval Notes",
+  name: "Shuo Qiu",
   url: siteUrl,
   host: new URL(siteUrl).host,
   locale: "en_US",
   description:
-    "Benchmarks, methodology, and implementation notes on AI agent evaluation, synthetic datasets, and eval-driven development by Shuo Qiu.",
+    "Notes by Shuo Qiu on AI agents, evaluation, and software.",
   rssPath: "/feed.xml",
   author: {
     name: "Shuo Qiu",
     path: "/about",
+  },
+  social: {
+    github: "https://github.com/QIU-Shuo",
+    x: "https://x.com/Shuo585186",
+    xHandle: "@Shuo585186",
   },
   keywords: [
     "agent evaluation",
@@ -57,4 +62,11 @@ export function getSocialImage(path = "/opengraph-image") {
       alt: `${siteConfig.name} social card`,
     },
   ];
+}
+
+export function getTwitterAttribution() {
+  return {
+    site: siteConfig.social.xHandle,
+    creator: siteConfig.social.xHandle,
+  };
 }
