@@ -1,0 +1,334 @@
+---
+title: "How We Learned to Measure Coding Agents, and Why We Still Can't"
+date: 2026-07-12
+lastModified: 2026-07-12
+contentType: Benchmark
+abstract: "Nobody can tell you which coding agent is best, and a bigger benchmark won't fix that. Every evaluation decides what to test, how to grade it, and which tasks to sample, and each one covers only a narrow aspect. What works instead is assembling several imperfect measurements and knowing each one's blind spot."
+metaDescription: "A failure-driven history of coding-agent benchmarks — from HumanEval to SWE-bench to SlopCodeBench — and why the hardest agentic work still has no answer key."
+draft: false
+---
+
+Suppose you're choosing between Claude Code and Codex, trying out a shiny new coding agent, or deciding whether a new model is worth switching to. Somebody will hand you a number: a SWE-bench score, an arena ranking, or an acceptance rate. This post is about what that number can and cannot tell you and, ultimately, how to design an evaluation for yourself or your company.
+
+Every evaluation—whether a benchmark, arena, dashboard, or research study—makes choices and tradeoffs across three design questions:
+
+1. **What is the evaluation target, and what setup surrounds it?** Define the target and control the setup. TL;DR: decide which components belong to the system being evaluated, then pin down the surrounding conditions that can move its score.
+2. **How to grade.** How to tell whether the agent's work is good. TL;DR: unit tests are useful but difficult to get right. And just as no one grades an engineer on tests alone, communication, maintainability, performance, and visual quality all need to be evaluated separately.
+3. **What inputs to sample.** Every evaluation samples an opinionated slice of the population of real-world use cases. TL;DR: most benchmarks cover a very narrow slice. For example, SWE-bench consists mostly of bug-fixing tasks on Python repos.
+
+This post walks through that design space. Each generation improved one dimension, sometimes at the cost of another. I’ll argue that today’s popular benchmarks still miss much of the mixed, interactive work handled by modern CLI coding agents. The goal is to help you interpret benchmark scores, identify what they miss in your use case, and assemble an evaluation portfolio within your budget.
+
+## It started as a coding interview
+
+Coding-agent evaluation did not begin with agents. It began with coding interviews. Early LLM evaluations of coding capabilities borrowed from LeetCode-style problems. They gave the model a self-contained coding quiz and used tests to assign a pass/fail grade. This is the idea behind [**APPS**](https://arxiv.org/abs/2105.09938) (Hendrycks et al., 2021) and [**HumanEval**](https://arxiv.org/abs/2107.03374) (M. Chen et al., 2021). In HumanEval, each problem includes a function signature, a docstring, and a set of hidden unit tests. The model is expected to complete the function from the problem description.
+
+<figure>
+  <img src="/figures/humaneval-figure2.png" alt="Three HumanEval example problems" />
+  <figcaption>
+    Three HumanEval problems at increasing difficulty. The model receives only the function signature and docstring; the highlighted line is the generated completion tested against hidden unit tests.
+  </figcaption>
+</figure>
+
+The model's response is graded with unit tests, just like a LeetCode submission. The models of the era were too weak to pass reliably on a single try, so HumanEval reported **pass@k**: the probability that at least one of *k* sampled attempts passes all the tests.
+
+HumanEval became a widely adopted benchmark for evaluating code generation. It had several advantages: it measured functional correctness through real execution and unit tests instead of text similarity to a ground-truth solution; its docstring-style problem description reduced ambiguity around the function name, input types, and output type; its questions were hand-written and fresh; and its pass@k metric made results easier to compare across stochastic models. Measured against the three questions above, HumanEval sits at the simplest corner of the design space: a bare model as the target, self-contained puzzles as the input, and a handful of unit tests as the grade. Each of those simplifications later became a finding.
+
+## Lesson on evaluation scope: define the target, control the setup
+
+Just as coding-interview performance does not capture everything an engineer does, HumanEval’s model-only setup does not capture real coding work. The job is bigger than solving a self-contained coding quiz. Software engineers need to navigate large repositories, edit multiple files, and use tools such as linters and compilers for feedback. [**SWE-bench**](https://arxiv.org/abs/2310.06770) (Jimenez et al., 2023) addresses this problem by turning real GitHub issues into repository-level patch tasks: the coding system receives an issue plus a codebase snapshot, then must produce a patch that passes the repository tests.
+
+<figure>
+  <img src="/figures/swebench-figure6-task-instance.png" alt="SWE-bench Figure 6 showing a formatted Sphinx issue task, the gold patch, a generated patch, and generated patch test results" />
+  <figcaption>
+    SWE-bench example showing the task input, the gold patch, a generated patch, and repository test output for a real Sphinx issue.
+  </figcaption>
+</figure>
+
+SWE-bench’s contribution goes beyond harder and more realistic coding tasks. It reframed LLM coding evaluation from measuring a model’s coding ability in isolation to evaluating coding systems. In the paper, the baseline was simple: retrieve relevant files, put them into the model context, and ask the model to generate a patch. But because SWE-bench did not isolate the model from the surrounding harness, it encouraged agentic solutions to compete and win on the benchmark.
+
+SWE-bench’s popularity also turned it into an optimization target for frontier model providers and coding-agent builders. When SWE-bench launched, the best systems resolved under 2% of issues. By 2026, strong models paired with capable agent harnesses were solving roughly 70–90% of issues on the human-curated Verified split. This rapid progress shows not only model improvement, but also how much better the surrounding agent scaffolds became once the benchmark made system-level coding performance visible and worth optimizing.
+
+Expanding the evaluation scope from a model to an agent system creates a second challenge: controlling the setup around it. The agent harness and tool interface should be allowed to vary; those components belong to the systems being compared. But the underlying environment — the Python version, the installed packages — is not part of what ships with a coding agent, and letting it drift means comparing conditions, not agents. [**Terminal-Bench**](https://arxiv.org/abs/2601.11868) (Merrill et al., 2026) pins that environment down. Each task ships with its own container, so its software and dependencies are specified alongside a human-written solution and executable tests. The container does not belong to the agent; it is a benchmark-controlled condition that lets different agents operate in a more reproducible environment.
+
+Even a pinned task image does not pin the entire runtime. [Anthropic](https://www.anthropic.com/engineering/infrastructure-noise) (Anthropic, 2026b) held the model, harness, and task set constant on Terminal-Bench 2.0 and found a six-percentage-point gap between the most- and least-resourced configurations. A crossover experiment on SWE-bench found a smaller but still monotonic effect from additional RAM.
+
+The lesson is to define the target, then pin or report the setup. Otherwise, you cannot tell whether the agent improved or the conditions changed.
+
+## Lesson on grading: tests are useful, but hard to get right, and far from enough
+
+So far, every benchmark in this story has relied on tests to grade the result. That brings us to the second design question: how do we know whether the agent's work is good? There are three levels to the answer. **Does it work? Is the work good beyond passing the tests? And did it save enough time to be worth the money?**
+
+### Does it work?
+
+#### Tests can be wrong — or simply incomplete
+
+Perhaps surprisingly, even this first question is hard to grade well. Tests are still usually the best place to begin because they execute the code and produce a reproducible verdict. But passing the tests does not mean the work is correct.
+
+Tests can be wrong in two directions. They can let incorrect work pass because they miss important behavior or because the checks themselves expect the wrong behavior. They can also fail valid work because they require one specific implementation, enforce requirements that were never stated, or disagree with the prompt.
+
+<figure>
+  <img src="/figures/evalplus-figure1.png" alt="EvalPlus example showing a HumanEval solution failing an added edge-case test" />
+  <figcaption>
+    EvalPlus example where a solution passes the original HumanEval tests but fails a new edge-case input because it loses the sorted order.
+  </figcaption>
+</figure>
+
+HumanEval's problems were small and human-written, but its tests still missed important cases. [**EvalPlus**](https://arxiv.org/abs/2305.01210) (Liu et al., 2023) audited the benchmark and reported 18 defects, about 11% of its problems, including unhandled edge cases, bad logic, and performance issues. It expanded the suite from an average of 9.6 tests per problem to 774.8.
+
+At repository scale, there are even more ways for tests to go wrong. In its original SWE-bench audit, OpenAI found tests that might unfairly reject valid solutions in 61.1% of reviewed instances, problem statements that left out needed details in 38.3%, and at least one issue in 68.3%. The result was [**SWE-bench Verified**](https://openai.com/index/introducing-swe-bench-verified/) (OpenAI, 2024), a 500-task split selected after reviews by software developers.
+
+Human review substantially improved the benchmark, but it did not catch every problem. In a [February 2026 re-audit](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/) (OpenAI, 2026b), OpenAI reviewed a selected subset of 138 Verified problems that o3 did not solve consistently across 64 runs. It reported problems in the tests or problem descriptions in **59.4%** of that subset and recommended SWE-bench Pro as a higher-quality replacement. Surprisingly, the story didn't end there. In a [July audit of SWE-bench Pro](https://openai.com/index/separating-signal-from-noise-coding-evaluations/) (OpenAI, 2026a), OpenAI estimated that roughly 30% of its tasks were broken and retracted the recommendation.
+
+Anyone who has maintained a test suite will recognize the problem. Writing a few tests is easy; writing a suite that rejects every wrong solution while accepting every valid alternative is difficult. It's already hard for a self-contained coding quiz and nearly impossible for a production-scale feature because test authors cannot anticipate every failure mode. Production suites usually become reliable only over time, as customer feedback and real failures reveal what their authors missed.
+
+Can we make the tests more reliable at a reasonable cost? Several projects suggest that automated test generation can help. [**UTBoost**](https://arxiv.org/abs/2506.09289) (Yu et al., 2025) generates tests to find tasks where incorrect patches still pass. It caught 345 such patches without adding new human labels. [**SWE-ABS**](https://arxiv.org/abs/2603.00520) (Yu et al., 2026) uses code coverage and deliberately introduced bugs to generate harder tests, pulling the leading score from 78.8% to 62.2%. [**RepoMod-Bench**](https://arxiv.org/abs/2602.22518) (X. Li et al., 2026) takes another route: it checks behavior through hidden tests over standard interfaces, so any implementation that behaves correctly can pass. These methods make the tests stronger, but none makes them a perfect answer key.
+
+For now, the practical lesson is to treat a benchmark's tests with some skepticism, especially when it contains complex repository tasks. If a meaningful share of its tasks are broken, then a high score may not be comparable with another high score.
+
+#### Different tasks need different checks
+
+Tests are not the right correctness check for every task. For example, a security agent needs another kind of check: did it find the vulnerability, demonstrate it, and repair it? [**CyberGym-E2E**](https://arxiv.org/abs/2606.04460) evaluates exactly those stages on vulnerabilities from real open-source projects (Shi et al., 2026). For code-review tasks, success means finding real defects without raising too many false alarms. [**Qodo's code-review benchmark**](https://www.qodo.ai/blog/how-we-built-a-real-world-benchmark-for-ai-code-review/) injects human-validated defects into real merged pull requests and measures precision and recall (Yanay & Fingerman, 2026).
+
+Both are coding tasks, but passing a test suite is no longer a natural measure of whether the agent succeeded.
+
+
+
+### Is the work good? Passing the tests is only the beginning
+
+No one would call a software engineer's work good simply because the tests passed. Almost every real task combines functional requirements with qualities that are harder to reduce to pass or fail. A patch may preserve behavior while remaining hard to maintain, visually awkward, or unnecessarily slow. Grading gets even harder when a coding agent produces subjective deliverables such as answers, reports, and visual designs.
+
+#### Performance: measure more than pass or fail
+
+The most straightforward is performance: it can be measured directly, but not reduced to a single pass-or-fail result. [**SWE-Perf**](https://arxiv.org/abs/2507.12415) (He et al., 2025) evaluates both functional correctness and performance across 140 repository-level optimization tasks. A patch must first preserve the system's behavior and is then graded by the runtime improvement it achieves on designated performance tests.
+
+#### Subjective quality: ask a judge, but inherit its errors
+
+Some outcomes are good or bad in ways that tests cannot fully capture. An explanation may contain true statements while missing the point; an analysis may calculate every number correctly while recommending the wrong action.
+
+Frontend apps are the clearest example. A frontend may work while looking unfinished. Problems such as visual misalignment or overflowing text are hard to grade using unit tests or even source code alone. This is unsurprising, since humans struggle to spot these problems in code too. [**ArtifactsBench**](https://arxiv.org/abs/2507.04952v2) (C. Zhang et al., 2025) runs each generated app, captures screenshots while interacting with it, and asks multimodal judges to score the code and visual evidence against a task-specific checklist. It reports up to 90.95% pairwise agreement with human experts and 94.4% ranking consistency with WebDev Arena.
+
+<figure>
+  <img src="/figures/artifactsbench-figure3-pipeline.png" alt="ArtifactsBench pipeline showing generated artifacts being rendered and captured in screenshots, a multimodal judge checked against human reviewers, and automated ranking" />
+  <figcaption>
+    ArtifactsBench validates its multimodal judge against human reviewers, then uses the judge to score rendered artifacts at scale. Figure 3 from C. Zhang et al. (2025).
+  </figcaption>
+</figure>
+
+However, [**WebDevJudge**](https://arxiv.org/abs/2510.18560v3) (C. Li et al., 2025) finds that LLM judges are not quite there yet. It compares judges — code-reading, screenshot-based, and interactive — against expert preferences. Its best evaluator reaches only 70.34% agreement.
+
+The same problem appears in answers and analyses that may not produce code at all. Consider asking an agent to explain a codebase or a data table. Individual claims and calculations may be checked, but there is no single correct choice of evidence, emphasis, or recommended action. [**InsightBench**](https://arxiv.org/abs/2407.06423) (Sahu et al., 2024) evaluates this kind of end-to-end business analysis. It compares agent-generated answers with expert-annotated insights to see how many each agent discovers.
+
+Subjective evaluation is not a final answer either: the judge is itself unreliable, so the grading problem moves into another system. But its adoption shows why functional checks alone are insufficient.
+
+#### Maintainability: can the next change still build on this code?
+
+Maintainability is also a core part of code quality. As in human software engineering, code that is hard to read and maintain jeopardizes subsequent development. [**SlopCodeBench**](https://arxiv.org/abs/2603.24755v2) (Orlanski et al., 2026) sidesteps the judge with a more concrete approach: it makes the agent keep working in the codebase it created. If its early design choices were poor, later changes should become harder. In the benchmark, no agent solved a full problem from beginning to end; the best strict solve rate across 196 checkpoints was **14.8%**.
+
+<figure>
+  <img src="/figures/slopcodebench-figure2-degradation.png" alt="SlopCodeBench plots showing solve rates falling and cost per checkpoint rising as iterative tasks progress" />
+  <figcaption>
+    SlopCodeBench tracks agents across evolving checkpoints. Solve rates fall as problems progress, while cost per checkpoint rises.
+  </figcaption>
+</figure>
+
+[**SWE-CI**](https://arxiv.org/abs/2603.03823v4) (J. Chen et al., 2026) looks for the same effect in real development histories. Its 100 tasks are drawn from development histories averaging 233 days and 71 consecutive commits, testing whether an agent can preserve functionality through repeated change instead of landing one isolated patch.
+
+
+### Is it worth it? Capability is not productivity
+
+Even correct, high-quality work may be a bad deal if it demands more steering, review, and rework than it saves. The final question is the most important but the most difficult: did the agent save enough human effort to justify what it cost?
+
+The agent's cost is easier to measure. It can be attached directly to an existing benchmark result and considered alongside the solve rate. [Cost-aware evaluation](https://arxiv.org/abs/2407.01502) (Kapoor et al., 2024) shows that elaborate agents often lose to cheaper baselines once accuracy is plotted against dollars. Most frontier labs now report this trade-off in their model releases.
+
+Another question is how much human time the coding agent can save. [METR's time horizon](https://arxiv.org/abs/2503.14499v3) (Kwa et al., 2025) reports the task length, measured in human hours, at which an agent succeeds half the time. But completing a task that takes a person four hours does not necessarily save four hours. The measure describes what the agent can do alone, before accounting for the human effort required to steer it, review its work, and use its output.
+
+Actual estimates of time savings depend on the combined human-agent system. Steering the agent, reviewing its work, manually editing the result, and repairing later problems can consume the apparent savings. Perception is a poor substitute: a [randomized trial](https://arxiv.org/abs/2507.09089v2) (Becker et al., 2025) found that 16 experienced developers worked 19% *slower* with AI while believing they were 20% faster. Yet [larger field experiments](https://doi.org/10.1287/mnsc.2025.00535) (Cui et al., 2026) across 4,867 developers found that developers with AI completed 26% *more* tasks. These findings need not conflict. The effect can depend on the developers, the work, the surrounding workflow, and whether productivity is measured as time per task or tasks completed.
+
+<figure>
+  <img src="/figures/metr-productivity-figure1-misperception.png" alt="METR chart comparing forecasts and estimates of AI speedup with the observed result, which instead shows a slowdown" />
+  <figcaption>
+    Experts and developers expected AI to reduce completion time, but METR's early-2025 randomized study observed a 19% slowdown. Figure 1 from Becker et al. (2025).
+  </figcaption>
+</figure>
+
+The hardest part of measuring productivity is establishing a counterfactual: what would similar developers have accomplished without the agent? METR approximated this comparison by randomly assigning developers' tasks to either an AI-allowed or AI-disallowed condition.
+
+Even that comparison is becoming harder. In [METR's follow-up study](https://metr.org/blog/2026-02-24-uplift-update/) (Becker et al., 2026), more developers declined to participate because they did not want to work without AI, while 30% to 50% said they withheld some tasks for the same reason. Finding people willing to work without AI — and therefore provide a credible comparison — is increasingly difficult as coding agents become part of normal work.
+
+
+## Lesson on inputs: coverage, contamination, realism — and ultimately simulation
+
+An evaluation is only as useful as the tasks it samples: they must represent the work it is intended to measure. Input design therefore faces three challenges — coverage, contamination, and realism. For offline evaluations of interactive agents, realism often leads to simulation.
+
+### Coverage: does the task set represent the work?
+
+HumanEval contains only 164 Python function-completion problems described in English, a narrow sample of real-world coding work. To broaden this coverage, [**MBPP**](https://arxiv.org/abs/2108.07732) (Austin et al., 2021) crowdsourced about a thousand more entry-level Python problems; [**MultiPL-E**](https://arxiv.org/abs/2208.08227) (Cassano et al., 2022) translated HumanEval and MBPP into 18 languages; and [**HumanEval-X**](https://arxiv.org/abs/2303.17568) (Zheng et al., 2023) manually rewrote HumanEval solutions in four additional programming languages. Because real programs rely on libraries rather than only self-contained algorithms, [**BigCodeBench**](https://arxiv.org/abs/2406.15877) (Zhuo et al., 2024) expanded the function-level format to 1,140 problems that use 139 libraries under detailed, constraint-heavy instructions.
+
+The same push happened at repository scale. SWE-bench covered only Python and focused almost entirely on bug fixing, so [**SWE-PolyBench**](https://arxiv.org/abs/2504.08703) (Rashid et al., 2025) and [**SWE-bench Multilingual**](https://www.swebench.com/multilingual.html) (Khandpur et al., 2025) spread it across languages, while [**SWE-Compass**](https://arxiv.org/abs/2511.05459) (Xu et al., 2025) spread it across task types: features, refactors, config. [**SWE Atlas**](https://scale.com/blog/swe-atlas) (Scale Research Team & Siegel, 2026) pushes the same question one level up by separating codebase investigation, test writing, and refactoring into different evaluations. At launch, only Codebase QnA was available, so it should be read as an evaluation-surface proposal more than a complete benchmark family.
+
+Coverage also includes task difficulty. A benchmark filled with easy tasks stops distinguishing strong agents once they all succeed, while one filled with extreme tasks says little about ordinary use. [**ProgramBench**](https://arxiv.org/abs/2605.03546) (Yang et al., 2026) targets the hard end of the distribution by asking agents to rebuild 200 programs ranging from command-line tools to FFmpeg, SQLite, and the PHP interpreter; in the paper's evaluation, no model fully solved a task, and the best passed at least 95% of the tests on only 3% of them. [**FrontierSWE**](https://www.frontierswe.com/blog) (Chu et al., 2026) pushes further with 20-hour, open-ended implementation, optimization, and research tasks designed to expose the limits of frontier agents.
+
+### Contamination: did the system already have access to the answer?
+
+Frontier LLMs trained on the public internet tend to memorize published datasets. Once the test set appears somewhere in the training data, a high score might mean the model recalled the answer rather than solved the problem. The solution is either to keep the benchmark private or to update it regularly. [**LiveCodeBench**](https://arxiv.org/abs/2403.07974) (Jain et al., 2024) takes the second approach by continuously harvesting fresh competitive-programming problems from LeetCode, AtCoder, and Codeforces.
+
+<figure>
+  <img src="/figures/livecodebench-codegen-contamination.png" alt="LiveCodeBench code-generation performance by LeetCode problem release month" />
+  <figcaption>
+    LiveCodeBench buckets problems by release month. Performance drops after model release and cutoff dates, illustrating why stale public benchmarks can overstate capability.
+  </figcaption>
+</figure>
+
+OpenAI found the same problem in its [SWE-bench Verified re-audit](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/) (OpenAI, 2026b): all frontier models it tested showed evidence of having seen at least some benchmark problems or solutions during training. Like LiveCodeBench, [**SWE-bench-Live**](https://arxiv.org/abs/2505.23419) (L. Zhang et al., 2025) mitigates contamination by continually introducing new tasks.
+
+Because these benchmarks are so flexible about the system boundary, they also introduce an interesting but easy-to-fix contamination channel: the agent may cheat the benchmark by retrieving the solution rather than working it out. In [**Cursor's reward-hacking study**](https://cursor.com/blog/reward-hacking-coding-benchmarks) (Jain, 2026), the agent retrieved the solution from the web or git history in 63% of successful Opus 4.8 Max resolutions on SWE-bench Pro. The fix is mostly easy: clean the git history and restrict internet access. Generally, an evaluation harness should be explicit about what information the agent may use.
+
+### Realism: do benchmark tasks resemble real requests?
+
+Most benchmarks give the agent a cleaned-up task and ask for a solution in a single turn. This makes them easier to reproduce and grade, but strips away part of how real coding work unfolds. SWE-bench, for example, turns GitHub issues with associated fixes and tests into self-contained patch tasks. Real coding-agent sessions are often less specified and more interactive: a user may begin with a vague goal, discover preferences only after seeing a first attempt, and steer the agent toward the desired result over several turns.
+
+[**SWE-chat**](https://arxiv.org/abs/2604.20779) (Baumann et al., 2026) analyzes 6,000 public coding-agent sessions and finds that users push back through corrections, failure reports, and interruptions in 44% of turns. Only 44% of agent-produced code survives into user commits. [**Saving SWE-Bench**](https://arxiv.org/abs/2510.08996) (Garg et al., 2025) tests the same point experimentally: when formal GitHub issues are rewritten as more realistic user-style queries based on agent-interaction telemetry, measured performance drops by more than 50% relative to baseline in some public settings and by 10–16% on an internal benchmark.
+
+<figure>
+  <img src="/figures/swe-chat-figure8-oversight.png" alt="SWE-chat chart showing user pushback, user interruptions, and agent clarification stops across coding modes" />
+  <figcaption>
+    SWE-chat shows that real coding-agent sessions include frequent user pushback and interruptions, while agents rarely stop to ask for clarification.
+  </figcaption>
+</figure>
+
+One approach is to turn production traces back into an offline benchmark, but, as the grading section showed, producing a reliable grade remains difficult. [**REAP**](https://arxiv.org/abs/2604.01527) (Jha et al., 2026) constructs its Harvest benchmark by extracting real developer prompts and corresponding fail-to-pass tests from production sessions. The resulting tasks require heavy filtering, but their language and task distributions better reflect production use than conventional single-language benchmarks.
+
+
+### From realism to simulation: when inputs respond to the agent
+
+Because coding agents are naturally interactive, authentic samples of user prompts are not enough. In real use, the user’s next message depends on what the agent does: they may push back on a mistake, answer a clarification question, or add context after seeing a first attempt. Most benchmarks avoid this by limiting evaluation to a single turn. To reproduce it offline, a benchmark needs an input source that responds to the agent. This is often a user simulator.
+
+[**Ambig-SWE**](https://openreview.net/forum?id=X2yzXtH4wp) (Vijayvargiya et al., 2026) demonstrates a simple form of user simulation. It removes information from fully specified SWE-bench issues, then gives a simulated user access to the original specification. When the agent asks a clarification question, the user responds using only that hidden information. The next input therefore depends on the agent's behavior while remaining grounded in a known specification. This interaction improves performance by up to 74% over the non-interactive setting.
+
+Other benchmarks generate follow-ups differently. [**ClarEval**](https://arxiv.org/abs/2603.00187v1) (J. Li et al., 2026) uses deterministic, human-validated dialogue scripts that reveal information gradually, making interactions reproducible but limiting them to predefined paths. [**HiL-Bench**](https://arxiv.org/abs/2604.09408) (Trinh et al., 2026) instead places hidden, human-validated blockers inside each task. As the agent explores the repository, it must discover those blockers and ask targeted questions before an `ask_human()` mechanism reveals the missing information.
+
+<figure>
+  <img src="/figures/hil-bench-figure2-progressive-discovery.png" alt="HiL-Bench workflow showing an agent progressively encountering three information gaps and choosing whether to ask a human or proceed with an assumption" />
+  <figcaption>
+    HiL-Bench makes missing information surface progressively as the agent explores. At each blocker, the agent must decide whether to ask a targeted question or continue with an assumption. Figure 2 from Trinh et al. (2026).
+  </figcaption>
+</figure>
+
+Over longer interactions, [**Dialogue SWE-Bench**](https://arxiv.org/abs/2606.13995) (King & Flanigan, 2026) goes beyond clarification oracles by grounding its simulated user in a persona and evaluating dialogue alongside task success. [**When the Specification Emerges**](https://arxiv.org/abs/2603.17104) (Yan et al., 2026) takes another approach, progressively disclosing the target design across roughly 60 coding requests. Claude Code and Codex both perform better when given the complete specification upfront, especially on structural integration. Together, these evaluations treat user intent as evolving state rather than as something fully captured by the initial prompt.
+
+The simulators above still mostly model interaction as revealing missing information over multiple turns. Real users do more: they interrupt, push back, revise their goals, and steer the agent between activities such as debugging and writing documentation. However, even a much richer simulator remains a proxy for a real user. User simulation therefore comes with a fundamental validity problem: the evaluation depends on whether the simulated user behaves like the people the agent will actually encounter.
+
+### Summary
+
+The lesson is that input design is both a sampling decision and, for interactive evaluations, a decision about how the user is simulated. Every evaluation captures a biased slice of the population it claims to represent. That bias is often a price for an easy-to-grade dataset: a narrow, cleaned dataset with grading information already attached. Such a dataset, even though biased, can still get us surprisingly far if the trade-off is explicit and the sampled slice is mostly valid.
+
+## Online evaluation: authentic traffic and real user judgment, but slow and hard to interpret
+
+Online evaluation observes a coding agent under real use instead of constructing tasks in advance. It can draw on millions of interactions and connect them to outcomes such as acceptance, retention, and revenue. But moving evaluation into production does not remove the three design questions in this article. It changes how each one fails: grades rely on user behavior, the target expands to the whole product, and authentic inputs may still miss the work that matters most.
+
+### Grading: user behavior shows value, not correctness
+
+Production offers many possible grades. [GitHub’s Copilot usage metrics](https://docs.github.com/en/copilot/concepts/copilot-usage-metrics/copilot-metrics) (GitHub, n.d.) include active users, agent adoption, suggestion acceptance, agent-written lines, pull requests created and merged, review activity, and time to merge. These signals range from an immediate reaction to longer-term adoption and business value.
+
+But behavior is evidence of usefulness, not an oracle for correctness. As a [practical evaluation of code completion](https://doi.org/10.48550/arXiv.2402.16197) (Izadi et al., 2024) illustrates, a user may reject correct code, accept a useful but flawed starting point, or discover a problem only much later. Studies comparing [rating scales with preference judgments](https://aclanthology.org/W10-4201/) (Belz & Kow, 2010) and [Best-Worst Scaling with rating scales](https://aclanthology.org/P17-2074/) (Kiritchenko & Mohammad, 2017) find that pairwise comparison can make judgment easier than absolute scoring, especially for a rendered website or short completion; it helps less when comparing repository-scale changes that require tests and careful review.
+
+### Target and setup: production evaluates the whole product
+
+Production cannot isolate the agent as cleanly as an offline benchmark. What users experience also depends on latency, context gathering, tools, interface design, and the surrounding workflow. A large sample makes an average less sensitive to chance, but it does not remove systematic changes in the product or its users. This is what [Anthropic's measurement of agent autonomy](https://www.anthropic.com/research/measuring-agent-autonomy) (Anthropic, 2026a) encountered in practice: changes in Claude Code turn length could reflect shifts in user trust, task difficulty, user population, and the product itself.
+
+This makes production metrics difficult to compare head to head. A higher acceptance rate this month may reflect a better agent, a different user population, or a different mix of tasks. A/B testing creates a cleaner comparison by assigning product versions concurrently, but it must run long enough and reach enough users to distinguish a real difference from ordinary variation; retention, incidents, and other long-term outcomes take longer still. Even then, the experiment evaluates the whole product rather than the agent alone. Running both versions at the same time controls for a shared holiday or market condition, but cannot guarantee that a novelty effect will persist or that the result will hold in another season.
+
+### Inputs: real traffic may not represent what matters
+
+The clearest advantage of online evaluation is its input data. Production traffic contains authentic prompts, repositories, interruptions, corrections, and follow-up requests. It shows how people use the product now, rather than how benchmark authors imagined they might use it when a test set was created.
+
+That makes online evaluation current, but not automatically representative or aligned with business value. Frequent, low-stakes requests can bury rare but consequential workflows. A large free-user population can outweigh the needs of a smaller enterprise segment, while people who failed onboarding or stopped using the product disappear from the sample entirely. Results must therefore be divided and weighted according to the users, tasks, and outcomes the business cares about rather than treating every interaction as equally important.
+
+## Conclusion: A portfolio, not a leaderboard
+
+### What the numbers still miss
+
+Although current evaluations have come a long way, they are still far from perfect:
+
+Grading the result is difficult. Unit tests are hard to get right in the first place, and many qualities, such as maintainability, visual polish, and usefulness, do not even have reliable, objective graders.
+
+Most benchmarks assume clean, single-turn inputs, but real-world work is often less tidy. Requirements arrive over multiple turns, users change their minds after seeing an implementation, and important information may remain unstated. Performance can fall when a request is spread across a long interaction.
+
+We can measure specific claims: whether an agent can repair certain repositories, under certain conditions, according to certain tests. What we still cannot measure well is the broader question people actually ask: *Which coding agent is better for me?* No single score can answer that question on its own.
+
+### The work has outgrown code
+
+What makes evaluation more difficult is that coding agents have become so popular that their usage patterns have quickly outpaced the development of evaluation methods. For example, a developer might start a task by using a coding agent to research possible approaches online, draft an implementation proposal, and share it with the team. They might then ask the coding agent to revise it in response to others' feedback, implement and deploy the change, analyze production logs, and prepare slides explaining the result.
+
+This is very difficult to evaluate. Documents and presentations involve subjective judgments about clarity. Online research is hard to reproduce because websites and search results change. Private documents, servers, and dashboards may be unavailable afterward. Simulating a long interaction that mixes coding, chat, and document writing is a substantial problem, especially when it includes feedback, interruptions, and changing requirements.
+
+Most popular coding benchmarks enter somewhere in the middle of that workflow. We could look across several relevant benchmarks to gain a broader view, but the trustworthiness of that view would remain limited. Plugins, MCP servers, and private context are especially difficult for public benchmarks to evaluate. However, we can cover this surface through internal and online evaluation.
+
+### What to do instead
+
+If you are choosing an agent, the most useful evidence will usually come from your own side-by-side testing. The next time you work on a task, start each agent in an isolated session or worktree with the same task. Compare not only whether they finish, but the quality of the result, the amount of steering and review required, the cost, and the problems you discover afterward. It won't take long. After three to five representative comparisons, you will have a much better sense of which agent fits your work.
+
+Companies need a broader portfolio. Combine public benchmarks with internal offline evaluations to provide controlled comparisons and help diagnose regressions. Cases harvested from production can make those evaluations more realistic, but be sure to filter for the users and tasks that matter and to design the grading carefully. Online signals such as adoption, retention, commits, and pull requests show whether users find value. Controlled experiments provide stronger evidence that a product change caused an improvement.
+
+Human annotation is important, but humans may struggle to write correct unit tests for complicated tasks, and they often disagree about subjective outcomes. LLM-based analysis can help identify patterns such as user pushback, but it is another imperfect evaluator. Its classifications should be checked against a human-reviewed sample, and the human labels also need clear criteria and auditing.
+
+The field still lacks evaluations that connect realistic interaction with mixed coding and non-coding work and use comprehensive grading. One promising direction is to build a series of evaluations incorporating a realistic user simulator that can answer clarification questions, interrupt, correct, and push back. Another is to evaluate grading methods for more difficult or interconnected tasks and dimensions.
+
+The LeetCode interview never proved that someone could do the job, but it did correlate with coding ability. Coding-agent benchmarks are similar: each number measures something real, but only a specific slice. The goal is not to determine which score wins in isolation, but to form a holistic, nuanced view from multiple evaluations.
+
+
+<Appendix title="References">
+
+- Anthropic. (2026a, February 18). [*Measuring AI agent autonomy in practice*](https://www.anthropic.com/research/measuring-agent-autonomy).
+- Anthropic. (2026b, February 5). [*Quantifying infrastructure noise in agentic coding evals*](https://www.anthropic.com/engineering/infrastructure-noise).
+- Austin, J., Odena, A., Nye, M., Bosma, M., Michalewski, H., Dohan, D., Jiang, E., Cai, C., Terry, M., Le, Q., & Sutton, C. (2021). [*Program synthesis with large language models*](https://doi.org/10.48550/arXiv.2108.07732) [Preprint]. arXiv.
+- Baumann, J., Padmakumar, V., Li, X., Yang, J., Yang, D., & Koyejo, S. (2026). [*SWE-chat: Coding agent interactions from real users in the wild*](https://doi.org/10.48550/arXiv.2604.20779) [Preprint]. arXiv.
+- Becker, J., Rush, N., Barnes, E., & Rein, D. (2025). [*Measuring the impact of early-2025 AI on experienced open-source developer productivity*](https://doi.org/10.48550/arXiv.2507.09089) [Preprint]. arXiv.
+- Becker, J., Rush, N., Cunningham, T., Rein, D., & Mahamud, K. (2026, February 24). [*We are changing our developer productivity experiment design*](https://metr.org/blog/2026-02-24-uplift-update/). METR.
+- Belz, A., & Kow, E. (2010). [*Comparing rating scales and preference judgements in language evaluation*](https://aclanthology.org/W10-4201/). In *Proceedings of the 6th International Natural Language Generation Conference (INLG 2010)*. Association for Computational Linguistics.
+- Cassano, F., Gouwar, J., Nguyen, D., Nguyen, S., Phipps-Costin, L., Pinckney, D., Yee, M.-H., Zi, Y., Anderson, C. J., Feldman, M. Q., Guha, A., Greenberg, M., & Jangda, A. (2022). [*MultiPL-E: A scalable and extensible approach to benchmarking neural code generation*](https://doi.org/10.48550/arXiv.2208.08227) [Preprint]. arXiv.
+- Chen, J., Xu, X., Wei, H., Chen, C., & Zhao, B. (2026). [*SWE-CI: Evaluating agent capabilities in maintaining codebases via continuous integration*](https://doi.org/10.48550/arXiv.2603.03823) [Preprint]. arXiv.
+- Chen, M., Tworek, J., Jun, H., Yuan, Q., Pinto, H. P. de O., Kaplan, J., Edwards, H., Burda, Y., Joseph, N., Brockman, G., Ray, A., Puri, R., Krueger, G., Petrov, M., Khlaaf, H., Sastry, G., Mishkin, P., Chan, B., Gray, S., … Zaremba, W. (2021). [*Evaluating large language models trained on code*](https://doi.org/10.48550/arXiv.2107.03374) [Preprint]. arXiv.
+- Chu, E., Agarwal, R., Thangamuthu, A., Graham, B., & Mattern, J. (2026, April). [*FrontierSWE: Benchmarking coding agents at the limits of human abilities*](https://www.frontierswe.com/blog). FrontierSWE.
+- Cui, K. Z., Demirer, M., Jaffe, S., Musolff, L., Peng, S., & Salz, T. (2026). [The effects of generative AI on high-skilled work: Evidence from three field experiments with software developers](https://doi.org/10.1287/mnsc.2025.00535). *Management Science*.
+- Garg, S., Steenhoek, B., & Huang, Y. (2025). [*Saving SWE-Bench: A benchmark mutation approach for realistic agent evaluation*](https://doi.org/10.48550/arXiv.2510.08996) [Preprint]. arXiv.
+- GitHub. (n.d.). [*GitHub Copilot usage metrics*](https://docs.github.com/en/copilot/concepts/copilot-usage-metrics/copilot-metrics). Retrieved June 20, 2026.
+- He, X., Liu, Q., Du, M., Yan, L., Fan, Z., Huang, Y., Zheng, Y., Yuan, Z., & Ma, Z. (2025). [*SWE-Perf: Can language models optimize code performance on real-world repositories?*](https://doi.org/10.48550/arXiv.2507.12415) [Preprint]. arXiv.
+- Hendrycks, D., Basart, S., Kadavath, S., Mazeika, M., Arora, A., Guo, E., Burns, C., Puranik, S., He, H., Song, D., & Steinhardt, J. (2021). [*Measuring coding challenge competence with APPS*](https://doi.org/10.48550/arXiv.2105.09938) [Preprint]. arXiv.
+- Izadi, M., Katzy, J., van Dam, T., Otten, M., Popescu, R. M., & van Deursen, A. (2024). [*Language models for code completion: A practical evaluation*](https://doi.org/10.48550/arXiv.2402.16197) [Preprint]. arXiv.
+- Jain, N. (2026, June 25). [*Reward hacking is swamping model intelligence gains*](https://cursor.com/blog/reward-hacking-coding-benchmarks). Cursor.
+- Jain, N., Han, K., Gu, A., Li, W.-D., Yan, F., Zhang, T., Wang, S., Solar-Lezama, A., Sen, K., & Stoica, I. (2024). [*LiveCodeBench: Holistic and contamination free evaluation of large language models for code*](https://doi.org/10.48550/arXiv.2403.07974) [Preprint]. arXiv.
+- Jha, S., Paltenghi, M., Maddila, C., Murali, V., Ugare, S., & Chandra, S. (2026). [*REAP: Automatic curation of coding agent benchmarks from interactive production usage*](https://doi.org/10.48550/arXiv.2604.01527) [Preprint]. arXiv.
+- Jimenez, C. E., Yang, J., Wettig, A., Yao, S., Pei, K., Press, O., & Narasimhan, K. (2023). [*SWE-bench: Can language models resolve real-world GitHub issues?*](https://doi.org/10.48550/arXiv.2310.06770) [Preprint]. arXiv.
+- Kapoor, S., Stroebl, B., Siegel, Z. S., Nadgir, N., & Narayanan, A. (2024). [*AI agents that matter*](https://doi.org/10.48550/arXiv.2407.01502) [Preprint]. arXiv.
+- Khandpur, K., Lieret, K., Jimenez, C. E., Press, O., & Yang, J. (2025). [*SWE-bench Multilingual*](https://www.swebench.com/multilingual.html). SWE-bench.
+- King, B., & Flanigan, J. (2026). [*Dialogue SWE-Bench: A benchmark for dialogue-driven coding agents*](https://doi.org/10.48550/arXiv.2606.13995) [Preprint]. arXiv.
+- Kiritchenko, S., & Mohammad, S. M. (2017). [*Best-Worst Scaling more reliable than rating scales: A case study on sentiment intensity annotation*](https://aclanthology.org/P17-2074/). In *Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)* (pp. 465–470). Association for Computational Linguistics.
+- Kwa, T., West, B., Becker, J., Deng, A., Garcia, K., Hasin, M., Jawhar, S., Kinniment, M., Rush, N., Von Arx, S., Bloom, R., Broadley, T., Du, H., Goodrich, B., Jurkovic, N., Miles, L. H., Nix, S., Lin, T., Parikh, N., … Chan, L. (2025). [*Measuring AI ability to complete long software tasks*](https://doi.org/10.48550/arXiv.2503.14499) [Preprint]. arXiv.
+- Li, C., Zheng, Y., Huang, X., Fang, T., Xu, J., Chen, L., Song, Y., & Hu, H. (2025). [*WebDevJudge: Evaluating (M)LLMs as critiques for web development quality*](https://doi.org/10.48550/arXiv.2510.18560) [Preprint]. arXiv.
+- Li, J., Wu, Y., & Chang, Y. (2026). [*ClarEval: A benchmark for evaluating clarification skills of code agents under ambiguous instructions*](https://doi.org/10.48550/arXiv.2603.00187) [Preprint]. arXiv.
+- Li, X., Ben-Israel, N., Raz, Y., Ahmed, B., Serebro, D., & Raux, A. (2026). [*RepoMod-Bench: A benchmark for code repository modernization via implementation-agnostic testing*](https://doi.org/10.48550/arXiv.2602.22518) [Preprint]. arXiv.
+- Liu, J., Xia, C. S., Wang, Y., & Zhang, L. (2023). [*Is your code generated by ChatGPT really correct? Rigorous evaluation of large language models for code generation*](https://doi.org/10.48550/arXiv.2305.01210) [Preprint]. arXiv.
+- Merrill, M. A., Shaw, A. G., Carlini, N., Li, B., Raj, H., Bercovich, I., Shi, L., Shin, J. Y., Walshe, T., Buchanan, E. K., Shen, J., Ye, G., Lin, H., Poulos, J., Wang, M., Nezhurina, M., Jitsev, J., Lu, D., Mastromichalakis, O. M., … Schmidt, L. (2026). [*Terminal-Bench: Benchmarking agents on hard, realistic tasks in command line interfaces*](https://doi.org/10.48550/arXiv.2601.11868) [Preprint]. arXiv.
+- OpenAI. (2024, August 13). [*Introducing SWE-bench Verified*](https://openai.com/index/introducing-swe-bench-verified/).
+- OpenAI. (2026a, July 8). [*Separating signal from noise in coding evaluations*](https://openai.com/index/separating-signal-from-noise-coding-evaluations/).
+- OpenAI. (2026b, February 23). [*Why SWE-bench Verified no longer measures frontier coding capabilities*](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/).
+- Orlanski, G., Roy, D., Yun, A., Shin, C., Gu, A., Ge, A., Adila, D., Roberts, N., Sala, F., & Albarghouthi, A. (2026). [*SlopCodeBench: Benchmarking how coding agents degrade over long-horizon iterative tasks*](https://doi.org/10.48550/arXiv.2603.24755) [Preprint]. arXiv.
+- Rashid, M. S., Bock, C., Zhuang, Y., Buchholz, A., Esler, T., Valentin, S., Franceschi, L., Wistuba, M., Sivaprasad, P. T., Kim, W. J., Deoras, A., Zappella, G., & Callot, L. (2025). [*SWE-PolyBench: A multi-language benchmark for repository level evaluation of coding agents*](https://doi.org/10.48550/arXiv.2504.08703) [Preprint]. arXiv.
+- Sahu, G., Puri, A., Rodriguez, J., Abaskohi, A., Chegini, M., Drouin, A., Taslakian, P., Zantedeschi, V., Lacoste, A., Vazquez, D., Chapados, N., Pal, C., Mudumba, S. R., & Laradji, I. H. (2024). [*InsightBench: Evaluating business analytics agents through multi-step insight generation*](https://doi.org/10.48550/arXiv.2407.06423) [Preprint]. arXiv.
+- Scale Research Team, & Siegel, M. (2026, March 4). [*Can coding agents become engineers? We're finding out*](https://scale.com/blog/swe-atlas). Scale AI.
+- Shi, T., Rheem, R., Jiang, D., Wang, M., De La Riega, F., Wang, Z., Jiang, J., Cheung, A., Tai, S., Cha, J., Tu, J., Han, G., Wang, C., He, J., Guo, W., & Song, D. (2026). [*CyberGym-E2E: Scalable real-world benchmark for AI agents' end-to-end cybersecurity capabilities*](https://doi.org/10.48550/arXiv.2606.04460) [Preprint]. arXiv.
+- Trinh, T., Elfeki, M., Luo, G., Luu, K., Hunt, N., Hernandez, E., Marwaha, N., He, Y. Y., Wang, C., Carabedo, F., Castillo, A., & Liu, B. (2026). [*HiL-Bench (Human-in-Loop Benchmark): Do agents know when to ask for help?*](https://doi.org/10.48550/arXiv.2604.09408) [Preprint]. arXiv.
+- Vijayvargiya, S., Zhou, X., Yerukola, A., Sap, M., & Neubig, G. (2026). [*Ambig-SWE: Interactive agents to overcome underspecificity in software engineering*](https://openreview.net/forum?id=X2yzXtH4wp). ICLR 2026.
+- Xu, J., Deng, K., Li, W., Yu, S., Tang, H., Huang, H., Lai, Z., Zhan, Z., Wu, Y., Zhang, C., Lei, K., Yao, Y., Lei, X., Zhu, W., Feng, Z., Li, H., Xiong, J., Li, D., Gao, Z., … Liu, J. (2025). [*SWE-Compass: Towards unified evaluation of agentic coding abilities for large language models*](https://doi.org/10.48550/arXiv.2511.05459) [Preprint]. arXiv.
+- Yan, L., Chen, X., & Zhang, X. (2026). [*When the specification emerges: Benchmarking faithfulness loss in long-horizon coding agents*](https://doi.org/10.48550/arXiv.2603.17104) [Preprint]. arXiv.
+- Yanay, T., & Fingerman, B. (2026, February 4). [*How we built a real-world benchmark for AI code review*](https://www.qodo.ai/blog/how-we-built-a-real-world-benchmark-for-ai-code-review/). Qodo.
+- Yang, J., Lieret, K., Ma, J., Thakkar, P., Pedchenko, D., Sootla, S., McMilin, E., Yin, P., Hou, R., Synnaeve, G., Yang, D., & Press, O. (2026). [*ProgramBench: Can language models rebuild programs from scratch?*](https://doi.org/10.48550/arXiv.2605.03546) [Preprint]. arXiv.
+- Yu, B., Zhu, Y., He, P., & Kang, D. (2025). [*UTBoost: Rigorous evaluation of coding agents on SWE-Bench*](https://doi.org/10.48550/arXiv.2506.09289) [Preprint]. arXiv.
+- Yu, B., Cao, Y., Zhang, Y., Lin, L., Xu, J., Zhong, Z., Xu, Q., Wang, G., Cao, J., Cheung, S.-C., He, P., & Briand, L. (2026). [*SWE-ABS: Adversarial benchmark strengthening exposes inflated success rates on test-based benchmark*](https://doi.org/10.48550/arXiv.2603.00520) [Preprint]. arXiv.
+- Zhang, C., Li, Y., Xu, C., Liu, J., Liu, A., Zhou, C., Deng, K., Wu, D., Huang, G., Li, K., Yi, Q., Xiong, R., Hu, S., Zhang, Y., Jiang, Y., Xu, Z., Zhang, Y., Zhou, W., Zhou, C., & Lian, F. (2025). [*ArtifactsBench: Bridging the visual-interactive gap in LLM code generation evaluation*](https://doi.org/10.48550/arXiv.2507.04952) [Preprint]. arXiv.
+- Zhang, L., He, S., Zhang, C., Kang, Y., Li, B., Xie, C., Wang, J., Wang, M., Huang, Y., Fu, S., Nallipogu, E., Lin, Q., Dang, Y., Rajmohan, S., & Zhang, D. (2025). [*SWE-bench goes live!*](https://doi.org/10.48550/arXiv.2505.23419) [Preprint]. arXiv.
+- Zheng, Q., Xia, X., Zou, X., Dong, Y., Wang, S., Xue, Y., Wang, Z., Shen, L., Wang, A., Li, Y., Su, T., Yang, Z., & Tang, J. (2023). [*CodeGeeX: A pre-trained model for code generation with multilingual benchmarking on HumanEval-X*](https://doi.org/10.48550/arXiv.2303.17568) [Preprint]. arXiv.
+- Zhuo, T. Y., Vu, M. C., Chim, J., Hu, H., Yu, W., Widyasari, R., Yusuf, I. N. B., Zhan, H., He, J., Paul, I., Brunner, S., Gong, C., Hoang, T., Zebaze, A. R., Hong, X., Li, W.-D., Kaddour, J., Xu, M., Zhang, Z., … Von Werra, L. (2024). [*BigCodeBench: Benchmarking code generation with diverse function calls and complex instructions*](https://doi.org/10.48550/arXiv.2406.15877) [Preprint]. arXiv.
+
+</Appendix>

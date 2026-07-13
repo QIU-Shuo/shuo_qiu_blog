@@ -29,7 +29,7 @@ export function ArticleHeader({
 
   return (
     <header className="border-b border-[var(--color-rule)]">
-      <div className="mx-auto max-w-[680px] pt-12 pb-8 px-6 md:px-0">
+      <div className="mx-auto max-w-[704px] pt-12 pb-8 px-6 md:px-0">
         <div className="mb-5">
           <ContentTypeBadge type={contentType} />
         </div>
