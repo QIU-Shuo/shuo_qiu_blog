@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://shuoq.dev";
+const DEFAULT_SITE_URL = "https://www.shuoq.dev";
 
 function normalizeSiteUrl(url: string) {
   const trimmed = url.trim().replace(/\/+$/, "");
@@ -14,10 +14,7 @@ function normalizeSiteUrl(url: string) {
 }
 
 const siteUrl = normalizeSiteUrl(
-  process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_URL ||
-    DEFAULT_SITE_URL
+  process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL
 );
 
 export const siteConfig = {
