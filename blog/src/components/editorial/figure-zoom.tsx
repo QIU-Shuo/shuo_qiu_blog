@@ -42,7 +42,9 @@ export function FigureZoom({ svg, alt }: FigureZoomProps) {
           role="dialog"
           aria-modal="true"
           aria-label={alt}
-          onClick={() => setOpen(false)}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
           className="fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/70 p-4 backdrop-blur-sm md:p-10"
         >
           <div

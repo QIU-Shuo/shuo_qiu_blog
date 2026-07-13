@@ -106,10 +106,11 @@ export function getAllPosts(): Post[] {
 
 export function getPostImagePaths(post: Post): string[] {
   const paths = new Set<string>();
-  const figurePattern = /<Figure\b[\s\S]*?\bsrc="([^"]+)"/g;
+  const imagePattern =
+    /<(?:Figure|img)\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
   let match: RegExpExecArray | null;
 
-  while ((match = figurePattern.exec(post.content)) !== null) {
+  while ((match = imagePattern.exec(post.content)) !== null) {
     paths.add(match[1]);
   }
 

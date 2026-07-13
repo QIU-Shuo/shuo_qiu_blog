@@ -11,8 +11,17 @@ interface FigureProps {
 }
 
 function readSvgInline(src: string): string {
-  const rel = src.replace(/^\//, "");
-  const filePath = path.join(process.cwd(), "public", rel);
+  const rel = src.replace(/^\/+/, "");
+  if (path.extname(rel).toLowerCase() !== ".svg") {
+    throw new Error(`Figure only supports SVG files: ${src}`);
+  }
+
+  const publicDir = fs.realpathSync(path.join(process.cwd(), "public"));
+  const filePath = fs.realpathSync(path.resolve(publicDir, rel));
+  if (!filePath.startsWith(`${publicDir}${path.sep}`)) {
+    throw new Error(`Figure path must stay within public/: ${src}`);
+  }
+
   const raw = fs.readFileSync(filePath, "utf8");
   return raw
     .replace(/<\?xml[\s\S]*?\?>/, "")
