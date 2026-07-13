@@ -20,7 +20,6 @@ export interface PostFrontmatter {
   abstract: string;
   metaDescription?: string;
   topics?: string[];
-  estimatedReadTime?: string;
   draft: boolean;
   reproductionRepo?: string;
   datasetLink?: string;
@@ -32,7 +31,21 @@ export interface Post {
   frontmatter: PostFrontmatter;
   content: string;
   readingTime: string;
+  wordCount: number;
   lastModified: string;
+}
+
+// Reduce MDX to the prose a reader actually sees: drop fenced code blocks
+// (mostly data dumps inside collapsed case studies), JSX/HTML tags and their
+// props, import/export lines, and image syntax; keep link text.
+function stripToProse(content: string): string {
+  return content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^(import|export)\s.*$/gm, " ")
+    .replace(/\{`[\s\S]*?`\}/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\(([^)]*)\)/g, "$1");
 }
 
 export function getPostSlugs(): string[] {
@@ -49,8 +62,7 @@ export function getPost(slug: string): Post | null {
 
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
-  const stats = readingTime(content);
-  const fileModified = fs.statSync(filePath).mtime.toISOString().split("T")[0];
+  const stats = readingTime(stripToProse(content));
 
   const frontmatter = data as PostFrontmatter;
   // gray-matter parses YAML dates into Date objects — normalize to string
@@ -68,7 +80,8 @@ export function getPost(slug: string): Post | null {
     frontmatter,
     content,
     readingTime: stats.text,
-    lastModified: frontmatter.lastModified ?? fileModified,
+    wordCount: stats.words,
+    lastModified: frontmatter.lastModified ?? frontmatter.date,
   };
 }
 
@@ -93,10 +106,11 @@ export function getAllPosts(): Post[] {
 
 export function getPostImagePaths(post: Post): string[] {
   const paths = new Set<string>();
-  const figurePattern = /<Figure\b[\s\S]*?\bsrc="([^"]+)"/g;
+  const imagePattern =
+    /<(?:Figure|img)\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
   let match: RegExpExecArray | null;
 
-  while ((match = figurePattern.exec(post.content)) !== null) {
+  while ((match = imagePattern.exec(post.content)) !== null) {
     paths.add(match[1]);
   }
 

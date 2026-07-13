@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type React from "react";
+import { FigureZoom } from "./figure-zoom";
 
 interface FigureProps {
   src: string;
@@ -10,8 +11,17 @@ interface FigureProps {
 }
 
 function readSvgInline(src: string): string {
-  const rel = src.replace(/^\//, "");
-  const filePath = path.join(process.cwd(), "public", rel);
+  const rel = src.replace(/^\/+/, "");
+  if (path.extname(rel).toLowerCase() !== ".svg") {
+    throw new Error(`Figure only supports SVG files: ${src}`);
+  }
+
+  const publicDir = fs.realpathSync(path.join(process.cwd(), "public"));
+  const filePath = fs.realpathSync(path.resolve(publicDir, rel));
+  if (!filePath.startsWith(`${publicDir}${path.sep}`)) {
+    throw new Error(`Figure path must stay within public/: ${src}`);
+  }
+
   const raw = fs.readFileSync(filePath, "utf8");
   return raw
     .replace(/<\?xml[\s\S]*?\?>/, "")
@@ -23,12 +33,7 @@ export function Figure({ src, alt, caption, number }: FigureProps) {
   const svg = readSvgInline(src);
   return (
     <figure className="not-prose mx-auto my-12 w-full max-w-[680px] px-6 md:px-0">
-      <div
-        role="img"
-        aria-label={alt}
-        className="block w-full [&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+      <FigureZoom svg={svg} alt={alt} />
       {(caption || number) && (
         <figcaption className="mt-5 max-w-[640px] font-[family-name:var(--font-ibm-plex-sans)] text-[0.875rem] leading-[1.6] text-[var(--color-muted)]">
           {number && (

@@ -112,7 +112,7 @@ export default async function PostPage({ params }: PageProps) {
       "@id": url,
     },
     articleSection: frontmatter.contentType,
-    wordCount: content.trim().split(/\s+/).length,
+    wordCount: post.wordCount,
     keywords: topics.join(", "),
     inLanguage: "en-US",
     image: imageUrls,
@@ -169,7 +169,7 @@ export default async function PostPage({ params }: PageProps) {
       <article className="pb-12">
         <nav
           aria-label="Breadcrumb"
-          className="mx-auto max-w-[680px] px-6 pt-6 md:px-0"
+          className="mx-auto max-w-[704px] px-6 pt-6 md:px-0"
         >
           <ol className="flex flex-wrap items-center gap-2 font-[family-name:var(--font-ibm-plex-sans)] text-[0.75rem] text-[var(--color-muted)]">
             <li>
@@ -195,7 +195,7 @@ export default async function PostPage({ params }: PageProps) {
           authorHref={siteConfig.author.path}
         />
         <Abstract>{frontmatter.abstract}</Abstract>
-        <div className="prose mx-auto mt-8 max-w-[680px] px-6 md:px-0">
+        <div className="prose mx-auto mt-8 max-w-[704px] px-6 md:px-0">
           <MDXRemote
             source={content}
             components={mdxComponents}
@@ -216,7 +216,7 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
         {relatedPosts.length > 0 && (
-          <section className="mx-auto mt-12 max-w-[680px] px-6 md:px-0">
+          <section className="mx-auto mt-12 max-w-[704px] px-6 md:px-0">
             <div className="border-t border-[var(--color-rule)] pt-8">
               <h2 className="font-[family-name:var(--font-ibm-plex-sans)] text-[1.125rem] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
                 Related posts

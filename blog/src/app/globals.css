@@ -45,9 +45,9 @@ body {
 /* ── Prose system ── */
 
 .prose {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   line-height: 1.75;
-  max-width: 680px;
+  max-width: 704px;
   margin-left: auto;
   margin-right: auto;
   color: var(--color-text-secondary);
@@ -125,6 +125,26 @@ body {
 
 .prose em {
   font-style: italic;
+}
+
+/* Figures */
+
+.prose figure {
+  margin: 2.5rem auto;
+}
+
+.prose figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.prose figcaption {
+  margin-top: 1rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-muted);
 }
 
 .prose ul,
