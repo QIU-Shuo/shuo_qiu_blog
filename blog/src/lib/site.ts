@@ -31,8 +31,8 @@ export const siteConfig = {
   },
   social: {
     github: "https://github.com/QIU-Shuo",
-    x: "https://x.com/Shuo585186",
-    xHandle: "@Shuo585186",
+    x: "https://x.com/ShuoQiu22",
+    xHandle: "@ShuoQiu22",
   },
   keywords: [
     "agent evaluation",

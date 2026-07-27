@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
-import { ContentTypeBadge } from "@/components/content-type-badge";
 import {
   absoluteUrl,
   getSocialImage,
@@ -61,8 +60,6 @@ export default function HomePage() {
           className="group -mx-3 block rounded-lg px-3 py-5 no-underline transition-colors duration-200 hover:bg-[var(--color-bg-subtle)]"
         >
           <div className="mb-2 flex items-center gap-2.5">
-            <ContentTypeBadge type={featured.frontmatter.contentType} />
-            <span className="text-[var(--color-rule)]">&middot;</span>
             <time
               dateTime={featured.frontmatter.date}
               className="font-[family-name:var(--font-ibm-plex-sans)] text-[0.75rem] text-[var(--color-muted)]"
@@ -93,8 +90,6 @@ export default function HomePage() {
           className="group -mx-3 block rounded-lg border-t border-[var(--color-rule)] px-3 py-5 no-underline transition-colors duration-200 hover:bg-[var(--color-bg-subtle)]"
         >
           <div className="mb-2 flex items-center gap-2.5">
-            <ContentTypeBadge type={post.frontmatter.contentType} />
-            <span className="text-[var(--color-rule)]">&middot;</span>
             <time
               dateTime={post.frontmatter.date}
               className="font-[family-name:var(--font-ibm-plex-sans)] text-[0.75rem] text-[var(--color-muted)]"

@@ -51,46 +51,21 @@ export default async function Image({ params }: PostImageProps) {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
-              gap: "24px",
-              width: "100%",
+              gap: "14px",
+              fontSize: 28,
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
             }}
           >
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "14px",
-                fontSize: 28,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              <div
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9999,
-                  background: "#1d4ed8",
-                }}
-              />
-              Shuo Qiu
-            </div>
-            <div
-              style={{
-                display: "flex",
+                width: 18,
+                height: 18,
                 borderRadius: 9999,
-                background: "#dbeafe",
-                color: "#1d4ed8",
-                fontSize: 24,
-                fontWeight: 700,
-                padding: "10px 18px",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
+                background: "#1d4ed8",
               }}
-            >
-              {post.frontmatter.contentType}
-            </div>
+            />
+            Shuo Qiu
           </div>
           <div
             style={{

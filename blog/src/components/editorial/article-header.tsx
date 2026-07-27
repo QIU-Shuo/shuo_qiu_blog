@@ -1,11 +1,8 @@
 import Link from "next/link";
-import { ContentTypeBadge } from "@/components/content-type-badge";
-import type { ContentType } from "@/lib/posts";
 
 interface ArticleHeaderProps {
   title: string;
   date: string;
-  contentType: ContentType;
   readingTime: string;
   authorName?: string;
   authorHref?: string;
@@ -14,7 +11,6 @@ interface ArticleHeaderProps {
 export function ArticleHeader({
   title,
   date,
-  contentType,
   readingTime,
   authorName,
   authorHref,
@@ -30,9 +26,6 @@ export function ArticleHeader({
   return (
     <header className="border-b border-[var(--color-rule)]">
       <div className="mx-auto max-w-[704px] pt-12 pb-8 px-6 md:px-0">
-        <div className="mb-5">
-          <ContentTypeBadge type={contentType} />
-        </div>
         <h1 className="font-[family-name:var(--font-ibm-plex-sans)] text-[2rem] leading-[1.18] font-bold tracking-[-0.025em] text-[var(--color-text)] md:text-[2.375rem]">
           {title}
         </h1>

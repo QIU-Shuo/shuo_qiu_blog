@@ -5,18 +5,10 @@ import readingTime from "reading-time";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
-export type ContentType =
-  | "Benchmark"
-  | "Method"
-  | "Field Note"
-  | "Opinion"
-  | "Tooling";
-
 export interface PostFrontmatter {
   title: string;
   date: string;
   lastModified?: string;
-  contentType: ContentType;
   abstract: string;
   metaDescription?: string;
   topics?: string[];
@@ -106,11 +98,10 @@ export function getAllPosts(): Post[] {
 
 export function getPostImagePaths(post: Post): string[] {
   const paths = new Set<string>();
-  const imagePattern =
-    /<(?:Figure|img)\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
+  const figurePattern = /<Figure\b[\s\S]*?\bsrc="([^"]+)"/g;
   let match: RegExpExecArray | null;
 
-  while ((match = imagePattern.exec(post.content)) !== null) {
+  while ((match = figurePattern.exec(post.content)) !== null) {
     paths.add(match[1]);
   }
 
