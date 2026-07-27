@@ -111,7 +111,6 @@ export default async function PostPage({ params }: PageProps) {
       "@type": "WebPage",
       "@id": url,
     },
-    articleSection: frontmatter.contentType,
     wordCount: post.wordCount,
     keywords: topics.join(", "),
     inLanguage: "en-US",
@@ -189,7 +188,6 @@ export default async function PostPage({ params }: PageProps) {
         <ArticleHeader
           title={frontmatter.title}
           date={frontmatter.date}
-          contentType={frontmatter.contentType}
           readingTime={readingTime}
           authorName={siteConfig.author.name}
           authorHref={siteConfig.author.path}
@@ -232,8 +230,6 @@ export default async function PostPage({ params }: PageProps) {
                     className="block rounded-lg border border-[var(--color-rule)] bg-[var(--color-bg-subtle)] px-4 py-4 no-underline transition-colors hover:border-[var(--color-accent)] hover:bg-white"
                   >
                     <div className="mb-1.5 flex flex-wrap items-center gap-2.5 font-[family-name:var(--font-ibm-plex-sans)] text-[0.75rem] text-[var(--color-muted)]">
-                      <span>{relatedPost.frontmatter.contentType}</span>
-                      <span className="text-[var(--color-rule)]">&middot;</span>
                       <time dateTime={relatedPost.frontmatter.date}>
                         {new Date(
                           relatedPost.frontmatter.date + "T00:00:00"
