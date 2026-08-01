@@ -1,0 +1,74 @@
+---
+title: "Why the Coding Benchmark Audit Never Ends"
+date: 2026-07-26
+lastModified: 2026-08-01
+abstract: "OpenAI stopped recommending SWE-bench Verified in February, then retracted its recommendation of the replacement in July. Terminal-Bench later revised 31% of its tasks, including some that had become invalid after release. The problem isn't one dataset: benchmarks ship once and get quoted immediately, while the corrections arrive later as an audit."
+metaDescription: "Four audits failed to produce a clean SWE-bench, while Terminal-Bench later revised 31% of its tasks. Why coding benchmarks can run out of signal before reaching 100%."
+draft: false
+relatedPosts:
+  - coding-agent-evaluation-why-we-cant-measure-it
+---
+
+SWE-bench was released in October 2023. It hands an agent a real GitHub issue and a snapshot of the repository it came from, then grades the resulting patch by running the project's tests. It soon became the field's default measure of coding-agent ability.
+
+## Four audits later, still no clean benchmark
+
+The first audit arrived in August 2024. OpenAI found defects in more than two-thirds of the 1,699 tasks it reviewed, then paid professional developers to produce a cleaner 500-task subset called SWE-bench Verified.
+
+Verified was challenged two months later. [SWE-Bench+](https://arxiv.org/abs/2410.06992) (Aleithan et al., 2024) manually reviewed the instances that SWE-Agent with GPT-4, then top of the leaderboard, had passed on the full benchmark. It found that 31.08% of the patches counted as successes were suspicious: the tests were too weak to establish that they were correct. The authors reported similar defects in Verified.
+
+In February 2026, OpenAI reviewed 138 Verified tasks that o3 failed to solve consistently across 64 runs, and found material problems with the tests or descriptions in 59.4% of that failure-selected subset. It [stopped reporting Verified](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/) and recommended SWE-bench Pro instead.
+
+Four and a half months later, OpenAI estimated that roughly 30% of SWE-bench Pro was also broken and [retracted its recommendation](https://openai.com/index/separating-signal-from-noise-coding-evaluations/).
+
+Four audits, each using a different review design. Every improved version still contained material defects.
+
+## This is not a SWE-bench problem
+
+Even a small, simple dataset does not survive an audit. HumanEval was the standard benchmark for early code LLMs: 164 hand-written, LeetCode-style Python problems, each a single function with a docstring, graded by an average of 9.6 unit tests. [EvalPlus](https://arxiv.org/abs/2305.01210) (Liu et al., 2023) audited it and found defects in about 11% of the problems, including unhandled edge cases, wrong logic, and performance issues. Closing the coverage gap took the suite from 9.6 tests per problem to 774.8 — eighty times more tests, to grade a function you can read in a minute.
+
+Terminal-Bench is another benchmark that model providers regularly report on. Its tasks are contributed by users who write them for the benchmark. [Z.AI](https://huggingface.co/datasets/zai-org/terminal-bench-2-verified), a lab that competes on it, reviewed the whole set and published what it found; that work fed into [Terminal-Bench 2.1](https://www.tbench.ai/news/terminal-bench-2-1), which revised 28 of its 89 tasks — 31% of the benchmark.
+
+It also exposes a failure mode the SWE-bench audits do not. Nine of those tasks broke because external dependencies changed after the benchmark was built; eight more had resource budgets too tight for a valid solution to finish consistently. Neither is an authoring mistake. Those tasks were correct when written and stopped being correct.
+
+<Figure
+  src="/figures/coding-benchmark-audit-rates.svg"
+  alt="Horizontal stacked bars showing portions of coding benchmarks flagged or revised by later audits: HumanEval 11%, the original SWE-bench audit sample 68.3%, SWE-bench Verified at least 16.4% of all 500 tasks, SWE-bench Pro about 30%, and Terminal-Bench 2.0 31.5%. The Verified bar separately shows 11.2% re-audited without a material issue found and 72.4% not included in the targeted 2026 re-audit."
+  caption="The audits used different review designs, so these rates show prevalence rather than a controlled comparison; for Verified, 362 of the 500 tasks were never re-audited at all."
+/>
+
+## Why this keeps happening
+
+There is a temptation to read all of this as carelessness. It isn't. Two things make a clean benchmark hard in a way that more effort does not fix.
+
+### Human annotation is flaky, especially on the hard cases
+
+Benchmark tasks are written and screened by people, and [human annotation](https://lilianweng.github.io/posts/2024-02-05-human-data-quality/) fails in well-studied ways.
+
+It gets worse on harder tasks. During verification of the original SWE-bench, each of the 1,699 tasks was reviewed by three people. On tasks whose fix was estimated at under 15 minutes, the reviewers landed on opposite sides of the accept-or-reject line on the problem specification 21.2% of the time. That rose to 37.1% for 15-to-60-minute tasks, 43.2% for one-to-four-hour tasks, and 46.8% for tasks estimated above four hours.
+
+### Unit tests are nearly impossible to get perfect
+
+A unit test is a sample of someone's opinion about correctness. Writing tests that catch one failure path is easy. Writing a suite that catches every wrong answer while accepting every valid alternative implementation is impossible unless the input space is finite. It requires anticipating both the failure modes you have not seen and the correct solutions you did not think of.
+
+In practice, nobody solves this upfront. Suites become trustworthy slowly, over years, as real failures arrive from real users and teach the suite what its authors missed. Every flaky test deleted and every regression test added after an incident is a correction that could not have been derived in advance.
+
+A production suite gets those years. A benchmark does not, because contamination puts a clock on it: OpenAI's re-audit found that every frontier model it tested showed signs of having seen Verified problems or solutions during training. The dataset ages out of usefulness while the audits are still arriving.
+
+## What to do about it
+
+The benchmarks that have received the most audit attention are the ones that are popular. The ones nobody has audited are probably no better; they are just unexamined. The high defect rates mean we should interpret their results carefully.
+
+**Small gaps are not necessarily progress.** Given audit failure rates in the tens of percent, a two- or three-point difference between agents on a repository-scale benchmark adds only a little weight to a claim that one is better.
+
+**The higher the score, the less it tells you.** When scores climb into the nineties, the remaining headroom is increasingly made of broken tasks. Claude Mythos Preview reports 93.9% on SWE-bench Verified, while OpenAI's re-audit confirmed that 16.4% of cases "have flawed test cases that reject functionally correct submissions." A score that high necessarily includes flagged tasks.
+
+A 30% defect rate does not, however, invalidate 30% of the ranking. In the [Terminal-Bench 2.0 and 2.1 comparison](https://www.tbench.ai/news/terminal-bench-2-1), the weaker models still tend to land at the bottom after the fixes. The Spearman correlation between the two versions is 0.908, which is usually considered high.
+
+The more important question is how we fix this. Terminal-Bench 2.1 introduced continuous validation, treating the benchmark as something to re-check rather than certify once.
+
+The ideal is to handle it automatically with LLMs, and there is already research in that direction. For example, [SWE-ABS](https://arxiv.org/abs/2603.00520) (Yu et al., 2026) uses code coverage and deliberately introduced bugs to build harder tests, and pulled a leading 78.8% result down to 62.2% with no change to the agent.
+
+---
+
+This is a rewrite of one section of [How We Learned to Measure Coding Agents, and Why We Still Can't](/posts/coding-agent-evaluation-why-we-cant-measure-it).
