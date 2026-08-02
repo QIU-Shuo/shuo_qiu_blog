@@ -2,8 +2,8 @@
 title: "Why the Coding Benchmark Audit Never Ends"
 date: 2026-07-26
 lastModified: 2026-08-01
-abstract: "OpenAI stopped recommending SWE-bench Verified in February, then retracted its recommendation of the replacement in July. Terminal-Bench later revised 31% of its tasks, including some that had become invalid after release. The problem isn't one dataset: benchmarks ship once and get quoted immediately, while the corrections arrive later as an audit."
-metaDescription: "Four audits failed to produce a clean SWE-bench, while Terminal-Bench later revised 31% of its tasks. Why coding benchmarks can run out of signal before reaching 100%."
+abstract: "A coding benchmark can run out of signal long before anyone scores 100% on it. Four audits later, every improved version of SWE-bench still had broken tasks."
+metaDescription: "Four audits failed to produce a clean SWE-bench, and Terminal-Bench revised 31% of its tasks. Why coding benchmark corrections always arrive after the scores."
 draft: false
 relatedPosts:
   - coding-agent-evaluation-why-we-cant-measure-it
@@ -25,9 +25,9 @@ Four audits, each using a different review design. Every improved version still 
 
 ## This is not a SWE-bench problem
 
-Even a small, simple dataset does not survive an audit. HumanEval was the standard benchmark for early code LLMs: 164 hand-written, LeetCode-style Python problems, each a single function with a docstring, graded by an average of 9.6 unit tests. [EvalPlus](https://arxiv.org/abs/2305.01210) (Liu et al., 2023) audited it and found defects in about 11% of the problems, including unhandled edge cases, wrong logic, and performance issues. Closing the coverage gap took the suite from 9.6 tests per problem to 774.8 — eighty times more tests, to grade a function you can read in a minute.
+Even a small, simple dataset does not survive an audit. HumanEval was the standard benchmark for early code LLMs: 164 hand-written, LeetCode-style Python problems, each a single function with a docstring, graded by an average of 9.6 unit tests. [EvalPlus](https://arxiv.org/abs/2305.01210) (Liu et al., 2023) audited it and found defects in about 11% of the problems, including unhandled edge cases, wrong logic, and performance issues. Closing the coverage gap took the suite from 9.6 tests per problem to 774.8.
 
-Terminal-Bench is another benchmark that model providers regularly report on. Its tasks are contributed by users who write them for the benchmark. [Z.AI](https://huggingface.co/datasets/zai-org/terminal-bench-2-verified), a lab that competes on it, reviewed the whole set and published what it found; that work fed into [Terminal-Bench 2.1](https://www.tbench.ai/news/terminal-bench-2-1), which revised 28 of its 89 tasks — 31% of the benchmark.
+Terminal-Bench is another benchmark that model providers regularly report on. Its tasks are contributed by users who write them for the benchmark. [Z.AI](https://huggingface.co/datasets/zai-org/terminal-bench-2-verified), a lab that competes on it, reviewed the whole set and published what it found; that work fed into [Terminal-Bench 2.1](https://www.tbench.ai/news/terminal-bench-2-1), which revised 28 of its 89 tasks. That is 31% of the benchmark.
 
 It also exposes a failure mode the SWE-bench audits do not. Nine of those tasks broke because external dependencies changed after the benchmark was built; eight more had resource budgets too tight for a valid solution to finish consistently. Neither is an authoring mistake. Those tasks were correct when written and stopped being correct.
 
@@ -68,6 +68,7 @@ A 30% defect rate does not, however, invalidate 30% of the ranking. In the [Term
 The more important question is how we fix this. Terminal-Bench 2.1 introduced continuous validation, treating the benchmark as something to re-check rather than certify once.
 
 The ideal is to handle it automatically with LLMs, and there is already research in that direction. For example, [SWE-ABS](https://arxiv.org/abs/2603.00520) (Yu et al., 2026) uses code coverage and deliberately introduced bugs to build harder tests, and pulled a leading 78.8% result down to 62.2% with no change to the agent.
+
 
 ---
 
