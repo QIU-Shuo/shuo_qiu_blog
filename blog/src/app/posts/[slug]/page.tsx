@@ -192,7 +192,9 @@ export default async function PostPage({ params }: PageProps) {
           authorName={siteConfig.author.name}
           authorHref={siteConfig.author.path}
         />
-        <Abstract>{frontmatter.abstract}</Abstract>
+        {frontmatter.showAbstract !== false && (
+          <Abstract>{frontmatter.abstract}</Abstract>
+        )}
         <div className="prose mx-auto mt-8 max-w-[704px] px-6 md:px-0">
           <MDXRemote
             source={content}
