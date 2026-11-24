@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 680 282" role="img" aria-labelledby="title desc">
+  <title id="title">GPT-6.1 Sol on Terminal-Bench 4.0, by harness</title>
+  <desc id="desc">Share of tasks solved by GPT-6.1 Sol at high reasoning, one attempt per task. Hermes Agent v0.22.5 54.0 percent, Codex 0.163.0 (the native harness) 50.8 percent, OpenCode 1.19.3 47.6 percent, Pi 1.4.0 42.9 percent.</desc>
+
+  <defs>
+    <style>
+      .sans { font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .label { fill: #111827; font-size: 14px; font-weight: 500; }
+      .detail { fill: #6b7280; font-size: 11px; }
+      .legend { fill: #374151; font-size: 12px; }
+      .tick { fill: #6b7280; font-size: 11px; }
+      .value { fill: #111827; font-size: 13px; font-weight: 500; }
+      .grid { stroke: #e5e7eb; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect x="0" y="6" width="12" height="12" rx="2" fill="#1d4ed8"/>
+  <text class="sans legend" x="18" y="16">Native harness</text>
+  <rect x="122" y="6" width="12" height="12" rx="2" fill="#d97706"/>
+  <text class="sans legend" x="140" y="16">Custom harness</text>
+
+  <g class="mono tick" text-anchor="middle">
+    <text x="170" y="54">0%</text>
+    <text x="320" y="54">20%</text>
+    <text x="470" y="54">40%</text>
+    <text x="620" y="54">60%</text>
+  </g>
+  <g class="grid">
+    <line x1="170" y1="62" x2="170" y2="274"/>
+    <line x1="320" y1="62" x2="320" y2="274"/>
+    <line x1="470" y1="62" x2="470" y2="274"/>
+    <line x1="620" y1="62" x2="620" y2="274"/>
+  </g>
+
+  <path d="M170,79 H571.0 Q575.0,79 575.0,83 V101 Q575.0,105 571.0,105 H170 Z" fill="#d97706"/>
+  <text class="sans label" x="0" y="91">Hermes Agent</text>
+  <text class="sans detail" x="0" y="106">v0.22.5</text>
+  <text class="mono value" x="585.0" y="96">54.0%</text>
+  <path d="M170,131 H547.0 Q551.0,131 551.0,135 V153 Q551.0,157 547.0,157 H170 Z" fill="#1d4ed8"/>
+  <text class="sans label" x="0" y="143">Codex</text>
+  <text class="sans detail" x="0" y="158">0.163.0</text>
+  <text class="mono value" x="561.0" y="148">50.8%</text>
+  <path d="M170,183 H523.0 Q527.0,183 527.0,187 V205 Q527.0,209 523.0,209 H170 Z" fill="#d97706"/>
+  <text class="sans label" x="0" y="195">OpenCode</text>
+  <text class="sans detail" x="0" y="210">1.19.3</text>
+  <text class="mono value" x="537.0" y="200">47.6%</text>
+  <path d="M170,235 H487.8 Q491.8,235 491.8,239 V257 Q491.8,261 487.8,261 H170 Z" fill="#d97706"/>
+  <text class="sans label" x="0" y="247">Pi</text>
+  <text class="sans detail" x="0" y="262">1.4.0</text>
+  <text class="mono value" x="501.8" y="252">42.9%</text>
+</svg>

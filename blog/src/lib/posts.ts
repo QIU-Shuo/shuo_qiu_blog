@@ -10,6 +10,7 @@ export interface PostFrontmatter {
   date: string;
   lastModified?: string;
   abstract: string;
+  showAbstract?: boolean;
   metaDescription?: string;
   topics?: string[];
   draft: boolean;
